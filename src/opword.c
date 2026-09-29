@@ -1,6 +1,6 @@
 #include "opword.h"
 
-uint8_t OpWord_opcode(OpWord opWord) {
+Opcode OpWord_opcode(OpWord opWord) {
     return (opWord.value >> 24) & 0xFF;
 }
 

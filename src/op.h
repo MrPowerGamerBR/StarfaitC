@@ -6,10 +6,12 @@
     X(OP_CALL, 0xD9)        \
     X(OP_POPZ, 0x9E)
 
-#define X_CONST(name, val) constexpr uint8_t name = val;
-OPCODES(X_CONST)
+#define MAKE_ENUM(name, val) name = val,
+typedef enum : uint8_t {
+    OPCODES(MAKE_ENUM)
+} Opcode;
 
-const char *Op_getOpcodeName(uint8_t op) {
+static inline const char* Op_getOpcodeName(Opcode op) {
     switch (op) {
 #define X_CASE(name, val) case val: return #name;
         OPCODES(X_CASE)

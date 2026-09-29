@@ -1,6 +1,11 @@
 #pragma once
 #include "rvalue.h"
-#include "../int_hashmap.h"
+
+#define HASH_MAP_NAME Int2RValueHashMap
+#define HASH_MAP_TYPE RValue
+#include "../int32_hashmap.h"
+#undef HASH_MAP_NAME
+#undef HASH_MAP_TYPE
 
 typedef struct {
     Int2RValueHashMap* variables;

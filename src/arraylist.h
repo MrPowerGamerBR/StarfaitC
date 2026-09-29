@@ -4,7 +4,6 @@
 #include <string.h>
 #include "mathutils.h"
 
-
 // Used just for testing purposes just so that CLion doesn't go haywire
 #ifndef ARRAY_LIST_NAME
 #define ARRAY_LIST_NAME Uint32ArrayList
@@ -46,3 +45,9 @@ static inline void FN(add)(ARRAY_LIST_NAME* list, ARRAY_LIST_TYPE element) {
     list->elements[list->size] = element;
     list->size++;
 }
+
+#undef FN
+#undef ARRAY_LIST_NAME
+#undef ARRAY_LIST_TYPE
+#undef LIST_CONCAT
+#undef LIST_CONCAT_

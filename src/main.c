@@ -5,7 +5,6 @@
 #include "charutils.h"
 #include "starfaitbytebuffer.h"
 #include "utils.h"
-#include "int_hashmap.h"
 #include "vm/vm.h"
 #include "wad/code.h"
 #include "wad/func.h"

@@ -1,14 +1,14 @@
-#include "strg.h"
+#include "strg_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "code.h"
+#include "code_chunk.h"
 
 #include "../starfaitbytebuffer.h"
 #include "../utils.h"
 
-CODE CODE_parse(StarfaitByteBuffer* buffer) {
+CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
     size_t postAddressPosition = buffer->position;
     CodeEntryArrayList* codeEntries = CodeEntryArrayList_create(addresses->size);
@@ -16,7 +16,7 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
     // This may happen if it is a YYC game OR if it is just a game without any code
     if (addresses->size == 0) {
         free(addresses);
-        return (CODE){
+        return (CODEChunk){
             .codeEntries = codeEntries,
             .postAddressPosition = postAddressPosition,
             .bytecode = nullptr
@@ -55,7 +55,7 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
         );
     }
 
-    CODE code = (CODE){
+    CODEChunk code = (CODEChunk){
         .codeEntries = codeEntries,
         .postAddressPosition = postAddressPosition,
         .bytecodeSize = bytecodeSize,

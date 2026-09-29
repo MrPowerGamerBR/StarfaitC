@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
 
-#include "code.h"
-#include "func.h"
-#include "gen8.h"
-#include "scpt.h"
-#include "strg.h"
-#include "vari.h"
+#include "code_chunk.h"
+#include "func_chunk.h"
+#include "gen8_chunk.h"
+#include "scpt_chunk.h"
+#include "strg_chunk.h"
+#include "vari_chunk.h"
 
 typedef struct {
-    GEN8 gen8;
-    VARI vari;
-    STRG strg;
-    FUNC func;
-    CODE code;
-    SCPT scpt;
+    GEN8Chunk gen8;
+    VARIChunk vari;
+    STRGChunk strg;
+    FUNCChunk func;
+    CODEChunk code;
+    SCPTChunk scpt;
 } GameWAD;
 
 GameWAD GameWAD_parse(StarfaitByteBuffer* buffer);

@@ -1,4 +1,4 @@
-#include "gen8.h"
+#include "gen8_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include "../utils.h"
 #include "../charutils.h"
 
-GEN8 GEN8_parse(StarfaitByteBuffer* buffer) {
+GEN8Chunk GEN8Chunk_parse(StarfaitByteBuffer* buffer) {
     bool debugWad = StarfaitByteBuffer_readUint8Boolean(buffer);
     uint8_t wadVersion = StarfaitByteBuffer_readUint8(buffer);
     StarfaitByteBuffer_skip(buffer, 2); // Padding
@@ -41,7 +41,7 @@ GEN8 GEN8_parse(StarfaitByteBuffer* buffer) {
         roomOrder[x] = roomId;
     }
 
-    return (GEN8) {
+    return (GEN8Chunk) {
         .debugWad = debugWad,
         .wadVersion = wadVersion,
         .gameTitle = gameTitle,

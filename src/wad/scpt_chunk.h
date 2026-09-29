@@ -5,6 +5,6 @@
 
 typedef struct {
     ScriptArrayList* scripts;
-} SCPT;
+} SCPTChunk;
 
-SCPT SCPT_parse(StarfaitByteBuffer* buffer);
+SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer);

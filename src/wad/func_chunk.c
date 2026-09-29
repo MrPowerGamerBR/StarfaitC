@@ -1,4 +1,4 @@
-#include "func.h"
+#include "func_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include "../starfaitbytebuffer.h"
 #include "../utils.h"
 
-FUNC FUNC_parse(StarfaitByteBuffer* buffer) {
+FUNCChunk FUNCChunk_parse(StarfaitByteBuffer* buffer) {
     size_t count = StarfaitByteBuffer_readUint32LE(buffer);
     FunctionArrayList* functions = FunctionArrayList_create(count);
 
@@ -25,7 +25,7 @@ FUNC FUNC_parse(StarfaitByteBuffer* buffer) {
         );
     }
 
-    return (FUNC){
+    return (FUNCChunk){
         .functions = functions,
     };
 }

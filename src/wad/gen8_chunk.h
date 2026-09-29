@@ -11,6 +11,6 @@ typedef struct {
     uint32_t gameId;
     uint32_t roomOrderCount;
     uint32_t* roomOrder;
-} GEN8;
+} GEN8Chunk;
 
-GEN8 GEN8_parse(StarfaitByteBuffer* buffer);
+GEN8Chunk GEN8Chunk_parse(StarfaitByteBuffer* buffer);

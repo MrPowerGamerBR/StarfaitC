@@ -1,4 +1,4 @@
-#include "gen8.h"
+#include "gen8_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,13 +6,13 @@
 #include "../charutils.h"
 #include "../utils.h"
 #include "variable.h"
-#include "vari.h"
+#include "vari_chunk.h"
 
 #include "arraylist_variable.h"
 
 constexpr uint32_t ENTRY_SIZE = 20;
 
-VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
+VARIChunk VARIChunk_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
     uint32_t start = buffer->position;
     uint32_t globalVariables = StarfaitByteBuffer_readUint32LE(buffer);
     uint32_t instanceVariables = StarfaitByteBuffer_readUint32LE(buffer); // Somehow it seems that modern GM games always have globalVariables == instanceVariables
@@ -43,7 +43,7 @@ VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
         );
     }
 
-    return (VARI){
+    return (VARIChunk){
         .globalVariables = globalVariables,
         .instanceVariables = instanceVariables,
         .localVariables = localVariables,

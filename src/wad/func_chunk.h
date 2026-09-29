@@ -6,6 +6,6 @@
 
 typedef struct {
     FunctionArrayList* functions;
-} FUNC;
+} FUNCChunk;
 
-FUNC FUNC_parse(StarfaitByteBuffer* buffer);
+FUNCChunk FUNCChunk_parse(StarfaitByteBuffer* buffer);

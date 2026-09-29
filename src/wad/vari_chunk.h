@@ -9,6 +9,6 @@ typedef struct {
     uint32_t instanceVariables;
     uint32_t localVariables;
     VariableArrayList* variables;
-} VARI;
+} VARIChunk;
 
-VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize);
+VARIChunk VARIChunk_parse(StarfaitByteBuffer* buffer, size_t chunkSize);

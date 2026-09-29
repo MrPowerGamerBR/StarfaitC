@@ -1,16 +1,16 @@
-#include "strg.h"
+#include "strg_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "scpt.h"
+#include "scpt_chunk.h"
 #include "script.h"
 
 #include "arraylist_uint32.h"
 #include "../starfaitbytebuffer.h"
 #include "../utils.h"
 
-SCPT SCPT_parse(StarfaitByteBuffer* buffer) {
+SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
     ScriptArrayList* scripts = ScriptArrayList_create(addresses->size);
 
@@ -27,7 +27,7 @@ SCPT SCPT_parse(StarfaitByteBuffer* buffer) {
         );
     }
 
-    auto scpt = (SCPT){
+    auto scpt = (SCPTChunk){
         .scripts = scripts
     };
 

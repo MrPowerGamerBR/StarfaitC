@@ -7,6 +7,6 @@ typedef struct {
     uint32_t postAddressPosition;
     size_t bytecodeSize;
     uint8_t* bytecode;
-} CODE;
+} CODEChunk;
 
-CODE CODE_parse(StarfaitByteBuffer* buffer);
+CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer);

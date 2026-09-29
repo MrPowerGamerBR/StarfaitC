@@ -9,7 +9,7 @@ typedef struct {
 typedef struct {
     size_t stringCount;
     StringWrapper** strings;
-} STRG;
+} STRGChunk;
 
-STRG STRG_parse(StarfaitByteBuffer* buffer);
-char* STRG_getString(STRG* strg, StringPointer pointer);
+STRGChunk STRGChunk_parse(StarfaitByteBuffer* buffer);
+char* STRGChunk_getString(STRGChunk* strg, StringPointer pointer);

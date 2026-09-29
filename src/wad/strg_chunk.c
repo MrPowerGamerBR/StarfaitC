@@ -1,4 +1,4 @@
-#include "strg.h"
+#include "strg_chunk.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include "../starfaitbytebuffer.h"
 #include "../utils.h"
 
-STRG STRG_parse(StarfaitByteBuffer* buffer) {
+STRGChunk STRGChunk_parse(StarfaitByteBuffer* buffer) {
     size_t addressCount;
     uint32_t* addresses;
     StarfaitByteBuffer_readAddresses(buffer, &addressCount, &addresses);
@@ -36,13 +36,13 @@ STRG STRG_parse(StarfaitByteBuffer* buffer) {
 
     free(addresses);
 
-    return (STRG) {
+    return (STRGChunk) {
         .stringCount = addressCount,
         .strings = strings,
     };
 }
 
-char* STRG_getString(STRG* strg, StringPointer pointer) {
+char* STRGChunk_getString(STRGChunk* strg, StringPointer pointer) {
     // TODO: please please please use a HashMap later
     repeat(strg->stringCount, i) {
         StringWrapper* wrapper = strg->strings[i];

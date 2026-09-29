@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "code.h"
-#include "gen8.h"
-#include "scpt.h"
-#include "strg.h"
-#include "vari.h"
+#include "code_chunk.h"
+#include "gen8_chunk.h"
+#include "scpt_chunk.h"
+#include "strg_chunk.h"
+#include "vari_chunk.h"
 #include "../charutils.h"
 
 GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
@@ -22,12 +22,12 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
 
     printf("Size is %d\n", count);
 
-    GEN8 gen8;
-    STRG strg;
-    VARI vari;
-    CODE code;
-    FUNC func;
-    SCPT scpt;
+    GEN8Chunk gen8;
+    STRGChunk strg;
+    VARIChunk vari;
+    CODEChunk code;
+    FUNCChunk func;
+    SCPTChunk scpt;
 
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         char* chunkName = StarfaitByteBuffer_readChars(buffer, 4);
@@ -36,12 +36,12 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
 
         printf("Chunk is %s (size: %d)\n", chunkName, chunkSize);
 
-        if (CharUtils_charEquals(chunkName, "GEN8")) gen8 = GEN8_parse(buffer);
-        if (CharUtils_charEquals(chunkName, "STRG")) strg = STRG_parse(buffer);
-        if (CharUtils_charEquals(chunkName, "VARI")) vari = VARI_parse(buffer, chunkSize);
-        if (CharUtils_charEquals(chunkName, "CODE")) code = CODE_parse(buffer);
-        if (CharUtils_charEquals(chunkName, "FUNC")) func = FUNC_parse(buffer);
-        if (CharUtils_charEquals(chunkName, "SCPT")) scpt = SCPT_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "GEN8")) gen8 = GEN8Chunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "STRG")) strg = STRGChunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "VARI")) vari = VARIChunk_parse(buffer, chunkSize);
+        if (CharUtils_charEquals(chunkName, "CODE")) code = CODEChunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "FUNC")) func = FUNCChunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "SCPT")) scpt = SCPTChunk_parse(buffer);
 
         StarfaitByteBuffer_jumpTo(buffer, currentPosition + chunkSize);
     }

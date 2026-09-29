@@ -141,7 +141,7 @@ void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type
     printf("varID: %d\n", varId);
 
     Variable* variable = VariableArrayList_get(vm->wad->vari.variables, varId);
-    printf("Variable is %s\n", STRG_getString(&vm->wad->strg, variable->name));
+    printf("Variable is %s\n", STRGChunk_getString(&vm->wad->strg, variable->name));
 
     RValue result = vm->builtins->builtinVariablesArrayList->elements[0].builtinVariableReader(vm, -1);
     VMStack_push(&vm->stack, result);
@@ -186,7 +186,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
     printf("Function Index is %d\n", functionIndex);
 
     Function function = *FunctionArrayList_get(vm->wad->func.functions, functionIndex);
-    char* functionName = STRG_getString(&vm->wad->strg, function.name);
+    char* functionName = STRGChunk_getString(&vm->wad->strg, function.name);
 
     // TODO: This is BAD, we NEED to use HashMaps for this later
     BuiltinFunctionArrayList_forEach(vm->builtins->builtinFunctionsArrayList, builtinFunction, i) {
@@ -205,7 +205,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
     // This may be a script!
     // TODO: Maybe have a HashMap for this too?
     ScriptArrayList_forEach(vm->wad->scpt.scripts, script, i) {
-        char* scriptName = STRG_getString(&vm->wad->strg, script->name);
+        char* scriptName = STRGChunk_getString(&vm->wad->strg, script->name);
 
         if (CharUtils_charEquals(scriptName, functionName)) {
             CodeEntry* codeEntry = CodeEntryArrayList_get(vm->wad->code.codeEntries, script->codeIndex);
@@ -379,7 +379,7 @@ void remapReferences(StarfaitVM* vm) {
             uint8_t nextDelta = 0;
 
             repeat(variable->occurrenceCount, j) {
-                printf("Processing %d (%s) with variable handler ID %d (delta is %d)\n", j, STRG_getString(&vm->wad->strg, variable->name), variableHandlerId, nextDelta);
+                printf("Processing %d (%s) with variable handler ID %d (delta is %d)\n", j, STRGChunk_getString(&vm->wad->strg, variable->name), variableHandlerId, nextDelta);
                 StarfaitByteBuffer_skip(&buffer, nextDelta);
 
                 VariableReferenceOperand operand = {.value = StarfaitByteBuffer_readUint32LE(&buffer)};
@@ -407,7 +407,7 @@ void remapReferences(StarfaitVM* vm) {
         uint8_t nextDelta = 0;
 
         repeat(function->occurrenceCount, j) {
-            printf("Processing function %s %d\n", STRG_getString(&vm->wad->strg, function->name), j);
+            printf("Processing function %s %d\n", STRGChunk_getString(&vm->wad->strg, function->name), j);
 
             StarfaitByteBuffer_skip(&buffer, nextDelta);
 
@@ -428,7 +428,7 @@ void remapReferences(StarfaitVM* vm) {
 
     StringArrayList* regularVariableNames = StringArrayList_create(allocatedRegularVariables->size);
     VariableArrayList_forEach(allocatedRegularVariables, variable, i) {
-        StarfaitString* string = StarfaitString_create(STRG_getString(&vm->wad->strg, variable->name));
+        StarfaitString* string = StarfaitString_create(STRGChunk_getString(&vm->wad->strg, variable->name));
         StringArrayList_add(regularVariableNames, *string);
     }
     vm->regularVariableNames = regularVariableNames;

@@ -38,6 +38,6 @@ int main() {
 
     StarfaitVM* vm = StarfaitVM_create(&gameWAD);
 
-    StarfaitVM_executeCode(vm, CodeEntryArrayList_get(vm->wad->code.codeEntries, 1));
+    StarfaitVM_executeCode(vm, CodeEntryArrayList_get(vm->wad->code.codeEntries, 1), RValueArrayList_create(0));
     return 0;
 }

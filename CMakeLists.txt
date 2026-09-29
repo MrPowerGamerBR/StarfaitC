@@ -12,7 +12,13 @@ set(
         GENERATED_OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_uint32.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_builtinfunction.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_builtinvariable.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_variable.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_script.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_function.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_codeentry.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_rvalue.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_callframe.h
 )
 
 file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/vm/*.c" "src/vm/*.h")

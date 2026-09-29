@@ -24,6 +24,12 @@ arrayListVariants = [
         "includes": ["\"vm/builtinfunction.h\""]
     },
     {
+        "file": "arraylist_builtinvariable",
+        "name": "BuiltinVariableArrayList",
+        "type": "BuiltinVariable",
+        "includes": ["\"vm/builtinvariable.h\""]
+    },
+    {
         "file": "arraylist_variable",
         "name": "VariableArrayList",
         "type": "Variable",
@@ -40,6 +46,24 @@ arrayListVariants = [
         "name": "FunctionArrayList",
         "type": "Function",
         "includes": ["\"wad/function.h\""]
+    },
+    {
+        "file": "arraylist_codeentry",
+        "name": "CodeEntryArrayList",
+        "type": "CodeEntry",
+        "includes": ["\"wad/codeentry.h\""]
+    },
+    {
+        "file": "arraylist_rvalue",
+        "name": "RValueArrayList",
+        "type": "RValue",
+        "includes": ["\"vm/rvalue.h\""]
+    },
+    {
+        "file": "arraylist_callframe",
+        "name": "CallFrameArrayList",
+        "type": "CallFrame",
+        "includes": ["\"vm/callframe.h\""]
     }
 ]
 

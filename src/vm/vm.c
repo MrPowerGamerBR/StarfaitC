@@ -51,7 +51,8 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
             int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
-            RValue localVariable = VariableContainer_getVariable(&vm->callFrame->container, VariableReferenceOperand_variableIndex(operand));
+            CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
+            RValue localVariable = VariableContainer_getVariable(&callFrame->container, VariableReferenceOperand_variableIndex(operand));
             VMStack_push(&vm->stack, RValue_createCopy(localVariable));
             break;
         };
@@ -140,13 +141,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
         if (CharUtils_charEquals(scriptName, functionName)) {
             CodeEntry* codeEntry = CodeEntryArrayList_get(vm->wad->code.codeEntries, script->codeIndex);
 
-            // When doing this, the new call frame will have the arguments of the script
-            // We still don't have proper CallFrames, but for now, this shall do
-            repeat(extra, j) {
-                vm->callFrame->arguments[j] = arguments[j];
-            }
-
-            RValue value = StarfaitVM_executeCode(vm, codeEntry);
+            RValue value = StarfaitVM_executeCode(vm, codeEntry, RValueArrayList_createFromCArray(arguments, extra));
             VMStack_push(&vm->stack, value);
 
             // Free call arguments
@@ -189,7 +184,8 @@ void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16
                     case VARIABLE_SCOPE_GLOBAL: TODO();
                     case VARIABLE_SCOPE_LOCAL: {
                         // We don't need to copy the variable because we "steal" from the stack
-                        VariableContainer_setVariable(&vm->callFrame->container, varId, poppedValue);
+                        CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
+                        VariableContainer_setVariable(&callFrame->container, varId, poppedValue);
                     }
                 }
             }
@@ -353,16 +349,15 @@ void remapReferences(StarfaitVM* vm) {
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
-    vm->builtins = VMBuiltins_create(vm);
-    vm->callFrame = calloc(1, sizeof(CallFrame));
-    vm->callFrame->container.variables = Int2RValueHashMap_create(8);
 
+    vm->callFrameStack = CallFrameArrayList_create(1);
+    vm->builtins = VMBuiltins_create(vm);
     vm->wad = wad;
+
     remapReferences(vm);
 
     return vm;
 }
-
 
 void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
@@ -375,7 +370,7 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
         int16_t extra = OpWord_extra(word);
 
         // VM: [gml_Object_obj_test_Step_0] (8) [0x4565fff9] POP (type1: 00000005, type2: 00000006, extra: fffffff9) [stack=1 ["Howdy! Loritta is so cute!"]]
-        printf("VM: (%lu) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->stack.top);
+        printf("VM: (%lu) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [callFrameStack=%lu stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->callFrameStack->size, vm->stack.top);
         printf(" ");
         bool isFirst = true;
         printf("[");
@@ -447,14 +442,29 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
     }
 }
 
-RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code) {
+CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
+    return CallFrameArrayList_last(vm->callFrameStack);
+}
+
+RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code, RValueArrayList* arguments) {
     StarfaitByteBuffer codeBuffer = StarfaitByteBuffer_create(
         // We do + on the offset because the offset is negative
         vm->wad->code.bytecode + (code->offset + (code->bytecodeRelativeOffsetFieldPosition + code->bytecodeRelativeOffset) - vm->wad->code.postAddressPosition),
         code->length - code->offset
     );
 
+    CallFrame* callFrame = CallFrame_create();
+
+    RValueArrayList_forEach(arguments, argument, i) {
+        RValueArrayList_set(callFrame->arguments, i, RValue_createCopy(*argument));
+    }
+
+    CallFrameArrayList_add(vm->callFrameStack, *callFrame);
+
     executeBytecodeInstructions(vm, &codeBuffer);
+
+    // Pop the current callFrame
+    CallFrameArrayList_removeLast(vm->callFrameStack);
 
     // TODO: Return result!
     return RValue_createUndefined();

@@ -13,7 +13,8 @@ RValue builtin_string([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t
 }
 
 RValue variable_reader_argument0([[maybe_unused]] StarfaitVM* vm, int32_t arrayIndex) {
-    return RValue_createCopy(vm->callFrame->arguments[0]);
+    CallFrame* currentCallFrame = StarfaitVM_getCurrentCallFrame(vm);
+    return RValue_createCopy(*RValueArrayList_get(currentCallFrame->arguments, 0));
 }
 
 void registerBuiltinFunction(VMBuiltins* builtins, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {

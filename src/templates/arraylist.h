@@ -37,9 +37,34 @@ static inline void __ARRAY_LIST_NAME___add(__ARRAY_LIST_NAME__* list, __ARRAY_LI
     list->size++;
 }
 
+static inline void __ARRAY_LIST_NAME___set(__ARRAY_LIST_NAME__* list, size_t index, __ARRAY_LIST_TYPE__ element) {
+    require(list->size > index);
+    list->elements[index] = element;
+}
+
+static inline __ARRAY_LIST_TYPE__* __ARRAY_LIST_NAME___last(__ARRAY_LIST_NAME__* list) {
+    require(list->size != 0);
+    return &list->elements[list->size - 1];
+}
+
+static inline __ARRAY_LIST_TYPE__* __ARRAY_LIST_NAME___removeLast(__ARRAY_LIST_NAME__* list) {
+    require(list->size != 0);
+    return &list->elements[--list->size];
+}
+
 static inline __ARRAY_LIST_TYPE__* __ARRAY_LIST_NAME___get(__ARRAY_LIST_NAME__* list, uint32_t index) {
     require(list->size > index);
     return &list->elements[index];
+}
+
+static inline __ARRAY_LIST_NAME__* __ARRAY_LIST_NAME___createFromCArray(__ARRAY_LIST_TYPE__* cArray, size_t size) {
+    __ARRAY_LIST_NAME__* arrayList = __ARRAY_LIST_NAME___create(size);
+
+    for (size_t i = 0; size > i; i++) {
+        __ARRAY_LIST_NAME___add(arrayList, cArray[i]);
+    }
+
+    return arrayList;
 }
 
 static inline void __ARRAY_LIST_NAME___free(__ARRAY_LIST_NAME__* list) {

@@ -46,7 +46,7 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
         case DATA_TYPE_INT64: TODO();
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: {
-            VariableReferenceOperand operand = (VariableReferenceOperand) {.value = StarfaitByteBuffer_readUint32LE(buffer)};
+            VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
 
             int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
@@ -121,8 +121,9 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
         if (CharUtils_charEquals(scriptName, functionName)) {
             CodeEntry* codeEntry = &vm->wad->code.codeEntries[script->codeIndex];
 
-            // TODO: We need to dispatch the codeEntry
-            TODO("We still need to figure out how to dispatch specific code entries!");
+            RValue value = StarfaitVM_executeCode(vm, codeEntry);
+            VMStack_push(&vm->stack, value);
+            return;
         }
     }
 
@@ -341,7 +342,8 @@ StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     return vm;
 }
 
-void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
+
+void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         size_t start = buffer->position;
 
@@ -418,4 +420,17 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
                 bye("I don't know how to handle opcode 0x%02X (%s)!", opcode, Op_getOpcodeName(opcode));
         }
     }
+}
+
+RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code) {
+    StarfaitByteBuffer codeBuffer = StarfaitByteBuffer_create(
+        // We do + on the offset because the offset is negative
+        vm->wad->code.bytecode + (code->offset + (code->bytecodeRelativeOffsetFieldPosition + code->bytecodeRelativeOffset) - vm->wad->code.postAddressPosition),
+        code->length - code->offset
+    );
+
+    executeBytecodeInstructions(vm, &codeBuffer);
+
+    // TODO: Return result!
+    return RValue_createUndefined();
 }

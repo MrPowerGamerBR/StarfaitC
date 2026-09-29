@@ -38,7 +38,6 @@ int main() {
 
     StarfaitVM* vm = StarfaitVM_create(&gameWAD);
 
-    StarfaitByteBuffer codeBuffer = StarfaitByteBuffer_create(gameWAD.code.bytecode, gameWAD.code.bytecodeSize);
-    StarfaitVM_executeBytecodeInstructions(vm, &codeBuffer);
+    StarfaitVM_executeCode(vm, &vm->wad->code.codeEntries[1]);
     return 0;
 }

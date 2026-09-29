@@ -34,4 +34,4 @@ struct StarfaitVM {
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad);
 
-void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer);
+RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code);

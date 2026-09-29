@@ -17,5 +17,11 @@ struct StarfaitVM {
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad);
 
+/**
+ * Returns the current CallFrame
+ *
+ * @param vm the StarfaitVM instance
+ * @return the current CallFrame
+ */
 CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm);
 RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code, RValueArrayList* arguments);

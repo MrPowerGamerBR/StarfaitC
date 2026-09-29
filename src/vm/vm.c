@@ -22,6 +22,15 @@ CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
     return CallFrameArrayList_last(vm->callFrameStack);
 }
 
+/**
+ * Reads variables from the instanceId, based on the current context
+ *
+ * @param vm the StarfaitVM instance
+ * @param varId the variable ID
+ * @param arrayIndex the array index, -1 if there isn't any
+ * @param instanceId the instance ID
+ * @return the RValue (not copied)
+ */
 RValue readVariableFromInstanceId(StarfaitVM* vm, int32_t varId, int32_t arrayIndex, int32_t instanceId) {
     // TECHNICALLY I'm pretty sure that not all push paths write to builtin vs regular variable
     // But to make everything consistent, we'll use the same path for everything

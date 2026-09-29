@@ -67,7 +67,7 @@ RValue readVariableFromInstanceId(StarfaitVM* vm, int32_t varId, int32_t arrayIn
 void printVariables(StarfaitVM* vm, VariableContainer* container) {
     // TODO: It would be cool if the HashMap itself had a "entries" similar to Java's HashMap
     repeat(container->variables->bucketsCount, bucket) {
-        Int2RValueHashMapEntry* entry = container->variables->buckets[bucket];
+        Int32RValueHashMapEntry* entry = container->variables->buckets[bucket];
         while (entry != nullptr) {
             printf("%s=%s\n", StarfaitString_toCharArrayView(StringArrayList_get(vm->regularVariableNames, entry->key - REGULAR_VARIABLES_BASE)), RValue_toString(entry->value));
             entry = entry->next;

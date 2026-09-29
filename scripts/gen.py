@@ -85,6 +85,15 @@ arrayListVariants = [
     }
 ]
 
+hashMapVariants = [
+    {
+        "file": "hashmap_int32_rvalue",
+        "name": "Int32RValueHashMap",
+        "type": "RValue",
+        "includes": ["\"vm/rvalue.h\""]
+    }
+]
+
 with open(templatesFolder / "arraylist.h", "r", encoding="utf-8") as f:
     contents = f.read()
 
@@ -100,3 +109,19 @@ with open(templatesFolder / "arraylist.h", "r", encoding="utf-8") as f:
                     .replace("__ARRAY_LIST_TYPE__", arrayListVariant["type"])
                     .replace("__INCLUDES__", includes)
                 )
+
+with open(templatesFolder / "hashmap.h", "r", encoding="utf-8") as f:
+    contents = f.read()
+
+    for hashMapVariant in hashMapVariants:
+        includes = ""
+        for include in hashMapVariant["includes"]:
+            includes = includes + "#include " + include + "\n"
+
+        with open(generatedDirectory / (hashMapVariant["file"] + ".h"), "w") as f:
+            f.write(
+                ("// BEEP BOOP THIS WAS AUTOMATICALLY GENERATED - DO NOT EDIT MANUALLY!!\n" + contents)
+                .replace("__HASH_MAP_NAME__", hashMapVariant["name"])
+                .replace("__HASH_MAP_ENTRY_TYPE__", hashMapVariant["type"])
+                .replace("__INCLUDES__", includes)
+            )

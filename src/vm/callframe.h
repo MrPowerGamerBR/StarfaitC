@@ -1,8 +1,8 @@
 #pragma once
 
 #include <arraylist_rvalue.h>
-
 #include "variablecontainer.h"
+#include "hashmap_int32_rvalue.h"
 
 typedef struct {
     VariableContainer container;
@@ -12,7 +12,7 @@ typedef struct {
 
 static inline CallFrame* CallFrame_create() {
     CallFrame* callFrame = calloc(1, sizeof(CallFrame));
-    callFrame->container.variables = Int2RValueHashMap_create(8);
+    callFrame->container.variables = Int32RValueHashMap_create(8);
 
     callFrame->arguments = RValueArrayList_create(16);
     repeat(16, i) {

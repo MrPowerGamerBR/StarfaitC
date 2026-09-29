@@ -22,6 +22,7 @@ set(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_string.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_pathpoint.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_path.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/hashmap_int32_rvalue.h
 )
 
 file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/wad/chunks/*.c" "src/wad/chunks/*.h" "src/vm/*.c" "src/vm/*.h")
@@ -34,7 +35,7 @@ target_sources(Starfait PRIVATE ${SOURCES} ${GENERATED_OUTPUT})
 target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable)
 target_include_directories(Starfait PRIVATE ${CMAKE_SOURCE_DIR}/src ${GENERATED_DIR})
 
-add_custom_command(OUTPUT ${GENERATED_OUTPUT} COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates ${GENERATED_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates/arraylist.h)
+add_custom_command(OUTPUT ${GENERATED_OUTPUT} COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates ${GENERATED_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates/arraylist.h ${CMAKE_SOURCE_DIR}/src/templates/hashmap.h)
 
 if(ENABLE_ASAN)
     target_compile_options(Starfait PRIVATE -fsanitize=address -fno-omit-frame-pointer)

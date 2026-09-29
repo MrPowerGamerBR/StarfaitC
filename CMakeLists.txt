@@ -32,7 +32,19 @@ set(ENABLE_ASAN ON)
 add_executable(Starfait)
 target_sources(Starfait PRIVATE ${SOURCES} ${GENERATED_OUTPUT})
 
-target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable)
+target_compile_options(
+        Starfait
+        PRIVATE
+        -Wall
+        -Wextra
+        -Werror
+        -Wwrite-strings
+        -Wmissing-prototypes
+        -Wimplicit-fallthrough
+        -Wno-error=unused-parameter
+        -Wno-error=unused-variable
+        -Wno-error=unused-function
+)
 target_include_directories(Starfait PRIVATE ${CMAKE_SOURCE_DIR}/src ${GENERATED_DIR})
 
 add_custom_command(OUTPUT ${GENERATED_OUTPUT} COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates ${GENERATED_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates/arraylist.h ${CMAKE_SOURCE_DIR}/src/templates/hashmap.h)

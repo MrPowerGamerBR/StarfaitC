@@ -2,22 +2,22 @@
 
 #include "vm.h"
 
-RValue builtin_show_debug_message([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
+static RValue builtin_show_debug_message([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
     printf("Game: %s\n", RValue_toString(args[0]));
 
     return RValue_createUndefined();
 }
 
-RValue builtin_string([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
+static RValue builtin_string([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
     return RValue_createStringFromCStringCopyAndFree(RValue_toString(args[0]));
 }
 
-RValue variable_reader_argument0([[maybe_unused]] StarfaitVM* vm, int32_t arrayIndex) {
+static RValue variable_reader_argument0([[maybe_unused]] StarfaitVM* vm, int32_t arrayIndex) {
     CallFrame* currentCallFrame = StarfaitVM_getCurrentCallFrame(vm);
     return RValue_createCopy(*RValueArrayList_get(currentCallFrame->arguments, 0));
 }
 
-void registerBuiltinFunction(VMBuiltins* builtins, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {
+static void registerBuiltinFunction(VMBuiltins* builtins, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {
     BuiltinFunctionArrayList_add(
         builtins->builtinFunctionsArrayList,
         (BuiltinFunction){
@@ -27,7 +27,7 @@ void registerBuiltinFunction(VMBuiltins* builtins, const char* name, RValue (*bu
     );
 }
 
-void registerBuiltinVariable(VMBuiltins* builtins, const char* name, RValue (*builtinVariableReader)(StarfaitVM*, int32_t)) {
+static void registerBuiltinVariable(VMBuiltins* builtins, const char* name, RValue (*builtinVariableReader)(StarfaitVM*, int32_t)) {
     BuiltinVariableArrayList_add(
         builtins->builtinVariablesArrayList,
         (BuiltinVariable){

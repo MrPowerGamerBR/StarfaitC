@@ -15,6 +15,8 @@ SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer) {
     ScriptArrayList* scripts = ScriptArrayList_create(addresses->size);
 
     Int32ArrayList_forEach(addresses, address, i) {
+        StarfaitByteBuffer_jumpTo(buffer, *address);
+
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
         int32_t codeIndex = StarfaitByteBuffer_readInt32LE(buffer);
 

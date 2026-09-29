@@ -64,7 +64,7 @@ static inline RValue* FN(get)(HASH_MAP_NAME* map, int32_t key) {
     return nullptr;
 }
 
-static inline void Int2RValueHashMap_put(HASH_MAP_NAME* map, int32_t key, RValue value) {
+static inline void FN(put)(HASH_MAP_NAME* map, int32_t key, RValue value) {
     size_t realKey = Int2RValueHashMap_hashKey(key) % map->bucketsCount;
 
     HASH_MAP_ENTRY_NAME* entry = map->buckets[realKey];

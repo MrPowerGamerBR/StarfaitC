@@ -17,6 +17,11 @@ static RValue variable_reader_argumentN(StarfaitVM* vm, [[maybe_unused]] int32_t
     return RValue_createCopy(*RValueArrayList_get(currentCallFrame->arguments, (int32_t) userData));
 }
 
+static RValue variable_reader_argumentArray(StarfaitVM* vm, int32_t arrayIndex, [[maybe_unused]] intptr_t userData) {
+    CallFrame* currentCallFrame = StarfaitVM_getCurrentCallFrame(vm);
+    return RValue_createCopy(*RValueArrayList_get(currentCallFrame->arguments, arrayIndex));
+}
+
 static RValue variable_reader_argument_count(StarfaitVM* vm, [[maybe_unused]] int32_t arrayIndex, [[maybe_unused]] intptr_t userData) {
     CallFrame* currentCallFrame = StarfaitVM_getCurrentCallFrame(vm);
     return RValue_createReal(currentCallFrame->arguments->size);
@@ -57,6 +62,7 @@ VMBuiltins* VMBuiltins_create(StarfaitVM* vm) {
         registerBuiltinVariable(builtins, strdup(name), variable_reader_argumentN, i);
     }
 
+    registerBuiltinVariable(builtins, "argument", variable_reader_argumentN, 0);
     registerBuiltinVariable(builtins, "argument_count", variable_reader_argument_count, 0);
 
     return builtins;

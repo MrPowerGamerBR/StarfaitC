@@ -54,7 +54,18 @@ static RValue readVariableFromInstanceId(StarfaitVM* vm, int32_t varId, int32_t 
         }
     } else TODO();
 
-    RValue rvalue = VariableContainer_getVariable(variableContainer, varId);
+    RValue rvalue;
+    if (varId >= REGULAR_VARIABLES_BASE) {
+        rvalue = VariableContainer_getVariable(variableContainer, varId);
+    } else {
+        BuiltinVariable variableHandler = vm->builtinVariableHandlers->elements[varId];
+
+        if (variableHandler.builtinVariableReader == nullptr)
+            bye("Tried reading from unimplemented builtin variable \"%s\"!\n", variableHandler.name);
+
+        rvalue = variableHandler.builtinVariableReader(vm, -1, variableHandler.userData);
+    }
+
     return rvalue;
 }
 

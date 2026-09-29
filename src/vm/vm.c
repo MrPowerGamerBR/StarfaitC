@@ -128,7 +128,7 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
         size_t start = buffer->position;
 
         OpWord word = {.value = StarfaitByteBuffer_readUint32LE(buffer)};
-        uint32_t opcode = OpWord_opcode(word);
+        Opcode opcode = OpWord_opcode(word);
         uint16_t type1 = OpWord_type1(word);
         uint16_t type2 = OpWord_type2(word);
         uint16_t extra = OpWord_extra(word);
@@ -148,6 +148,8 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
                 handlePopz(vm);
                 break;
             }
+            default:
+                bye("I don't know how to handle opcode 0x%02X (%s)!", opcode, Op_getOpcodeName(opcode));
         }
     }
 }

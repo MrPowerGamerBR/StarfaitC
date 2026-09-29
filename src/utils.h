@@ -11,13 +11,23 @@
 #define require(cond, ...)                                              \
     do {                                                                \
         if (!(cond)) {                                                  \
-            fprintf(stderr, "%s:%d: %s: require failed: %s",            \
+            fprintf(stderr, "%s:%d (%s) Requirement failed: %s",        \
                     __FILE__, __LINE__, __func__, #cond);               \
             __VA_OPT__(fprintf(stderr, " - ");                          \
                        fprintf(stderr, __VA_ARGS__);)                   \
             fputc('\n', stderr);                                        \
             abort();                                                    \
         }                                                               \
+    } while (0)
+
+#define bye( ...)                                                   \
+    do {                                                            \
+        fprintf(stderr, "%s:%d (%s) Aborted",                       \
+            __FILE__, __LINE__, __func__);                          \
+        __VA_OPT__(fprintf(stderr, ": ");                           \
+            fprintf(stderr, __VA_ARGS__);)                          \
+        fputc('\n', stderr);                                        \
+        abort();                                                    \
     } while (0)
 
 static inline uint32_t Utils_minFromArray(const uint32_t* elements, size_t size) {

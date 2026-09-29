@@ -15,8 +15,7 @@
 #include "vm_builtins.h"
 #include "../charutils.h"
 
-// TODO: Increase this whenever we ACTUALLY implement hashmaps
-constexpr uint32_t REGULAR_VARIABLES_BASE = 16; // 100'000
+constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
 
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
@@ -248,6 +247,7 @@ StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     BuiltinFunctionArrayList* builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
     vm->builtinFunctionsArrayList = builtinFunctionsArrayList;
     vm->callFrame = calloc(1, sizeof(CallFrame));
+    vm->callFrame->container.variables = Int2RValueHashMap_create(8);
 
     vm->wad = wad;
     VMBuiltins_registerBuiltins(vm);

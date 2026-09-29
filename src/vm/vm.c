@@ -151,7 +151,7 @@ static void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_
     if (variableHandler.builtinVariableReader == nullptr)
         bye("Tried reading from unimplemented builtin variable \"%s\"!\n", variableHandler.name);
 
-    RValue result = variableHandler.builtinVariableReader(vm, -1);
+    RValue result = variableHandler.builtinVariableReader(vm, -1, variableHandler.userData);
     VMStack_push(&vm->stack, result);
 }
 

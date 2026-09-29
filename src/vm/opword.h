@@ -15,4 +15,4 @@ uint32_t OpWord_type1(OpWord opWord);
 uint32_t OpWord_type2(OpWord opWord);
 int16_t OpWord_extra(OpWord opWord);
 CmpOp OpWord_comparisonFunction(OpWord opWord);
-uint32_t OpWord_branchOffset(OpWord opWord);
+int32_t OpWord_branchOffset(OpWord opWord);

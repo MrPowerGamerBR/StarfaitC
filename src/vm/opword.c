@@ -20,6 +20,6 @@ CmpOp OpWord_comparisonFunction(OpWord opWord) {
     return (opWord.value >> 8) & 0xF;
 }
 
-uint32_t OpWord_branchOffset(OpWord opWord) {
+int32_t OpWord_branchOffset(OpWord opWord) {
     return (opWord.value << 9) >> 7;
 }

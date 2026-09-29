@@ -241,27 +241,33 @@ void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t
             VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsReal(left) == RValue_getAsReal(right)));
             break;
         };
-        case CMPOP_NOT_EQUAL: TODO();
+        case CMPOP_NOT_EQUAL: {
+            VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsReal(left) != RValue_getAsReal(right)));
+            break;
+        };
         case CMPOP_GREATER_THAN_OR_EQUAL: TODO();
         case CMPOP_GREATER_THAN: TODO();
     }
 }
 
-void handleB([[maybe_unused]] StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
-    buffer->position += branchOffset;
+void handleB([[maybe_unused]] StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
+    // Branches are in relation to the start of the instruction
+    buffer->position += (branchOffset - 4);
 }
 
-void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
+void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
     bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
     if (result) {
-        buffer->position += branchOffset;
+        // Branches are in relation to the start of the instruction
+        buffer->position += (branchOffset - 4);
     }
 }
 
-void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
+void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
     bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
     if (!result) {
-        buffer->position += branchOffset;
+        // Branches are in relation to the start of the instruction
+        buffer->position += (branchOffset - 4);
     }
 }
 

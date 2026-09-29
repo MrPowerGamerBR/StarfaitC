@@ -20,9 +20,11 @@ set(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_rvalue.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_callframe.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_string.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_pathpoint.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_path.h
 )
 
-file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/vm/*.c" "src/vm/*.h")
+file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/wad/chunks/*.c" "src/wad/chunks/*.h" "src/vm/*.c" "src/vm/*.h")
 
 set(ENABLE_ASAN ON)
 

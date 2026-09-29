@@ -6,7 +6,7 @@
 #include "starfaitbytebuffer.h"
 #include "starfaitstrings.h"
 #include "utils.h"
-#include "vm.h"
+#include "vm/vm.h"
 #include "wad/code.h"
 #include "wad/func.h"
 #include "wad/gen8.h"

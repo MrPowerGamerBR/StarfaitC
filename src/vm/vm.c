@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "vm_stack.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +8,7 @@
 #include "op.h"
 #include "opword.h"
 #include "instructiondatatype.h"
-#include "utils.h"
+#include "../utils.h"
 #include "rvalue.h"
 
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {

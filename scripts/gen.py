@@ -70,6 +70,18 @@ arrayListVariants = [
         "name": "StringArrayList",
         "type": "StarfaitString",
         "includes": ["\"starfaitstring.h\""]
+    },
+    {
+        "file": "arraylist_pathpoint",
+        "name": "PathPointArrayList",
+        "type": "PathPoint",
+        "includes": ["\"wad/pathpoint.h\""]
+    },
+    {
+        "file": "arraylist_path",
+        "name": "PathArrayList",
+        "type": "Path",
+        "includes": ["\"wad/path.h\""]
     }
 ]
 

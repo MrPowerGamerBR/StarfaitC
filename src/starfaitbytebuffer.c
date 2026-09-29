@@ -39,6 +39,17 @@ int32_t StarfaitByteBuffer_readInt32LE(StarfaitByteBuffer* buffer) {
     return (int32_t) StarfaitByteBuffer_readUint32LE(buffer);
 }
 
+bool StarfaitByteBuffer_readInt32Boolean(StarfaitByteBuffer* buffer) {
+    return StarfaitByteBuffer_readInt32LE(buffer) != 0;
+}
+
+float StarfaitByteBuffer_readFloatLE(StarfaitByteBuffer* buffer) {
+    const uint32_t bits = StarfaitByteBuffer_readUint32LE(buffer);
+    float value;
+    memcpy(&value, &bits, sizeof(float));
+    return value;
+}
+
 void StarfaitByteBuffer_writeUint32LE(StarfaitByteBuffer* buffer, uint32_t value) {
     // YOU NEED TO EXPLICITLY ADD THOSE DAMN () BECAUSE IF YOU DON'T, THE VALUE WILL BE CASTED BEFORE THE BITWISE OPERATION!!!
     buffer->data[buffer->position++] = (uint8_t) (value);

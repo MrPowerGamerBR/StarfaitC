@@ -5,6 +5,7 @@
 
 #include "code_chunk.h"
 #include "gen8_chunk.h"
+#include "path_chunk.h"
 #include "scpt_chunk.h"
 #include "strg_chunk.h"
 #include "vari_chunk.h"
@@ -28,6 +29,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
     CODEChunk code;
     FUNCChunk func;
     SCPTChunk scpt;
+    PATHChunk path;
 
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         char* chunkName = StarfaitByteBuffer_readChars(buffer, 4);
@@ -42,6 +44,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         if (CharUtils_charEquals(chunkName, "CODE")) code = CODEChunk_parse(buffer);
         if (CharUtils_charEquals(chunkName, "FUNC")) func = FUNCChunk_parse(buffer);
         if (CharUtils_charEquals(chunkName, "SCPT")) scpt = SCPTChunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "PATH")) path = PATHChunk_parse(buffer);
 
         StarfaitByteBuffer_jumpTo(buffer, currentPosition + chunkSize);
     }
@@ -52,6 +55,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         .vari = vari,
         .code = code,
         .func = func,
-        .scpt = scpt
+        .scpt = scpt,
+        .path = path
     };
 }

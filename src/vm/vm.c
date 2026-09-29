@@ -18,6 +18,30 @@
 
 constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
 
+CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
+    return CallFrameArrayList_last(vm->callFrameStack);
+}
+
+RValue readVariableFromInstanceId(StarfaitVM* vm, int32_t varId, int32_t arrayIndex, int32_t instanceId) {
+    // TECHNICALLY I'm pretty sure that not all push paths write to builtin vs regular variable
+    // But to make everything consistent, we'll use the same path for everything
+    VariableContainer* variableContainer = nullptr;
+
+    if (0 > instanceId) {
+        VariableScope scope = VariableScope_byId((int8_t) instanceId);
+
+        switch (scope) {
+            case VARIABLE_SCOPE_SELF: TODO();
+            case VARIABLE_SCOPE_OTHER: TODO();
+            case VARIABLE_SCOPE_GLOBAL: TODO();
+            case VARIABLE_SCOPE_LOCAL: variableContainer = &StarfaitVM_getCurrentCallFrame(vm)->container;
+        }
+    } else TODO();
+
+    RValue rvalue = VariableContainer_getVariable(variableContainer, varId);
+    return rvalue;
+}
+
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
@@ -36,11 +60,10 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int3
             VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
 
             int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
-            int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : 0;
+            int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
-            CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
-            RValue localVariable = VariableContainer_getVariable(&callFrame->container, VariableReferenceOperand_variableIndex(operand));
-            VMStack_push(&vm->stack, RValue_createCopy(localVariable));
+            RValue variable = readVariableFromInstanceId(vm, VariableReferenceOperand_variableIndex(operand), arrayIndex, instanceId);
+            VMStack_push(&vm->stack, RValue_createCopy(variable));
             break;
         };
         case DATA_TYPE_STRING:
@@ -66,8 +89,8 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
             CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
-            RValue localVariable = VariableContainer_getVariable(&callFrame->container, VariableReferenceOperand_variableIndex(operand));
-            VMStack_push(&vm->stack, RValue_createCopy(localVariable));
+            RValue variable = readVariableFromInstanceId(vm, VariableReferenceOperand_variableIndex(operand), arrayIndex, VARIABLE_SCOPE_LOCAL);
+            VMStack_push(&vm->stack, RValue_createCopy(variable));
             break;
         };
         case DATA_TYPE_STRING: TODO();
@@ -460,10 +483,6 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
                 bye("I don't know how to handle opcode 0x%02X (%s)!", opcode, Op_getOpcodeName(opcode));
         }
     }
-}
-
-CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
-    return CallFrameArrayList_last(vm->callFrameStack);
 }
 
 RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code, RValueArrayList* arguments) {

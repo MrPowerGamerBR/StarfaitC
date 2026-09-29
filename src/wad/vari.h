@@ -1,4 +1,5 @@
 #pragma once
+#include "arraylist_variable.h"
 #include "variable.h"
 #include "stringpointer.h"
 #include "../starfaitbytebuffer.h"
@@ -7,8 +8,7 @@ typedef struct {
     uint32_t globalVariables;
     uint32_t instanceVariables;
     uint32_t localVariables;
-    size_t variableCount;
-    Variable* variables;
+    VariableArrayList* variables;
 } VARI;
 
 VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize);

@@ -8,6 +8,8 @@
 #include "variable.h"
 #include "vari.h"
 
+#include "arraylist_variable.h"
+
 constexpr uint32_t ENTRY_SIZE = 20;
 
 VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
@@ -19,7 +21,8 @@ VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
     // The WAD doesn't give us the entry count (fun!)
     uint32_t remaining = ((start + chunkSize) - buffer->position);
     uint32_t entryCount = remaining / ENTRY_SIZE;
-    Variable* variables = calloc(entryCount, sizeof(Variable));
+
+    VariableArrayList* variables = VariableArrayList_create(entryCount);
 
     repeat(entryCount, i) {
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
@@ -28,18 +31,22 @@ VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
         uint32_t occurrenceCount = StarfaitByteBuffer_readUint32LE(buffer);
         int32_t firstAddress = StarfaitByteBuffer_readInt32LE(buffer);
 
-        variables[i].name = name;
-        variables[i].instanceType = instanceType;
-        variables[i].varId = varId;
-        variables[i].occurrenceCount = occurrenceCount;
-        variables[i].firstAddress = firstAddress;
+        VariableArrayList_add(
+            variables,
+            (Variable){
+                .name = name,
+                .instanceType = instanceType,
+                .varId = varId,
+                .occurrenceCount = occurrenceCount,
+                .firstAddress = firstAddress
+            }
+        );
     }
 
-    return (VARI) {
+    return (VARI){
         .globalVariables = globalVariables,
         .instanceVariables = instanceVariables,
         .localVariables = localVariables,
-        .variableCount = entryCount,
         .variables = variables,
     };
 }

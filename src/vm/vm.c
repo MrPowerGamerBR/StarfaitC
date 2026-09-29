@@ -99,7 +99,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
 
     printf("Function Index is %d\n", functionIndex);
 
-    Function function = vm->wad->func.functions[functionIndex];
+    Function function = vm->wad->func.functions->elements[functionIndex];
     char* functionName = STRG_getString(&vm->wad->strg, function.name);
 
     // TODO: This is BAD, we NEED to use HashMaps for this later
@@ -114,8 +114,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
 
     // This may be a script!
     // TODO: Maybe have a HashMap for this too?
-    repeat(vm->wad->scpt.scriptCount, i) {
-        Script* script = &vm->wad->scpt.scripts[i];
+    ScriptArrayList_forEach(vm->wad->scpt.scripts, script, i) {
         char* scriptName = STRG_getString(&vm->wad->strg, script->name);
 
         if (CharUtils_charEquals(scriptName, functionName)) {
@@ -254,30 +253,29 @@ void remapReferences(StarfaitVM* vm) {
     VariableArrayList* allocatedBuiltinVariables = VariableArrayList_create(0);
     VariableArrayList* allocatedRegularVariables = VariableArrayList_create(0);
 
-    repeat(vm->wad->vari.variableCount, i) {
-        Variable variable = vm->wad->vari.variables[i];
-        if (variable.firstAddress != -1) {
+    VariableArrayList_forEach(vm->wad->vari.variables, variable, i) {
+        if (variable->firstAddress != -1) {
             // Here's the thing:
             // For builtin variables, we store it sequentially, starting from 0
             // For regular variables, we store it sequentially, starting from REGULAR_VARIABLES_BASE
             // This way we can differentiate directly on the operand itself, and we can store the handlers densely
             int32_t variableHandlerId = 0;
-            if (variable.varId == -6) {
+            if (variable->varId == -6) {
                 size_t index = allocatedBuiltinVariables->size;
-                VariableArrayList_add(allocatedBuiltinVariables, variable);
+                VariableArrayList_add(allocatedBuiltinVariables, *variable);
                 variableHandlerId = (int32_t) index;
             } else {
                 size_t index = allocatedRegularVariables->size;
-                VariableArrayList_add(allocatedRegularVariables, variable);
+                VariableArrayList_add(allocatedRegularVariables, *variable);
                 variableHandlerId = (int32_t) (index + REGULAR_VARIABLES_BASE);
             }
 
             // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
-            StarfaitByteBuffer_jumpTo(&buffer, (variable.firstAddress - vm->wad->code.postAddressPosition) + 4);
+            StarfaitByteBuffer_jumpTo(&buffer, (variable->firstAddress - vm->wad->code.postAddressPosition) + 4);
 
             uint8_t nextDelta = 0;
 
-            repeat(variable.occurrenceCount, j) {
+            repeat(variable->occurrenceCount, j) {
                 printf("Processing %d with variable handler ID %d (delta is %d)\n", j, variableHandlerId, nextDelta);
                 StarfaitByteBuffer_skip(&buffer, nextDelta);
 
@@ -299,16 +297,14 @@ void remapReferences(StarfaitVM* vm) {
         }
     }
 
-    repeat(vm->wad->func.functionCount, i) {
-        Function function = vm->wad->func.functions[i];
-
+    FunctionArrayList_forEach(vm->wad->func.functions, function, i) {
         // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
-        StarfaitByteBuffer_jumpTo(&buffer, (function.firstAddress - vm->wad->code.postAddressPosition) + 4);
+        StarfaitByteBuffer_jumpTo(&buffer, (function->firstAddress - vm->wad->code.postAddressPosition) + 4);
 
         uint8_t nextDelta = 0;
 
-        repeat(function.occurrenceCount, j) {
-            printf("Processing function %s %d\n", STRG_getString(&vm->wad->strg, function.name), j);
+        repeat(function->occurrenceCount, j) {
+            printf("Processing function %s %d\n", STRG_getString(&vm->wad->strg, function->name), j);
 
             StarfaitByteBuffer_skip(&buffer, nextDelta);
 

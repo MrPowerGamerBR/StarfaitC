@@ -28,6 +28,18 @@ arrayListVariants = [
         "name": "VariableArrayList",
         "type": "Variable",
         "includes": ["\"wad/variable.h\""]
+    },
+    {
+        "file": "arraylist_script",
+        "name": "ScriptArrayList",
+        "type": "Script",
+        "includes": ["\"wad/script.h\""]
+    },
+    {
+        "file": "arraylist_function",
+        "name": "FunctionArrayList",
+        "type": "Function",
+        "includes": ["\"wad/function.h\""]
     }
 ]
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -38,3 +40,9 @@ static inline void __ARRAY_LIST_NAME___free(__ARRAY_LIST_NAME__* list) {
     free(list->elements);
     free(list);
 }
+
+// This is a super duper hack!!
+// But essentially we first iterate by the index, then we do a fake "for" that only sets the ptr to what we want
+#define __ARRAY_LIST_NAME___forEach(list, ptr, i) \
+    for (size_t i = 0; list->size > i; i++) \
+        for (__ARRAY_LIST_TYPE__* ptr = &list->elements[i]; ptr != nullptr; ptr = nullptr)

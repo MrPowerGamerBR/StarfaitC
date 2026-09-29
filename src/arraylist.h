@@ -4,12 +4,8 @@
 #include <string.h>
 #include "mathutils.h"
 
-// Used just for testing purposes just so that CLion doesn't go haywire
-#ifndef ARRAY_LIST_NAME
-#define ARRAY_LIST_NAME Uint32ArrayList
-#define ARRAY_LIST_TYPE uint32_t
-#endif
-
+// We set a ifdef for allll of these things just so that a stray arraylist.h doesn't cause duplicated lists
+#ifdef ARRAY_LIST_NAME
 #ifndef LIST_CONCAT
 #define LIST_CONCAT_(a, b) a##b
 #define LIST_CONCAT(a, b)  LIST_CONCAT_(a, b)
@@ -46,8 +42,15 @@ static inline void FN(add)(ARRAY_LIST_NAME* list, ARRAY_LIST_TYPE element) {
     list->size++;
 }
 
+static inline void FN(free)(ARRAY_LIST_NAME* list) {
+    free(list->elements);
+    free(list);
+}
+
 #undef FN
 #undef ARRAY_LIST_NAME
 #undef ARRAY_LIST_TYPE
 #undef LIST_CONCAT
 #undef LIST_CONCAT_
+
+#endif

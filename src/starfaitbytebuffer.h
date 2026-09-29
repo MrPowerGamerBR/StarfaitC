@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "arraylist_generic_types.h"
 #include "wad/stringpointer.h"
 
 typedef struct {
@@ -21,6 +22,7 @@ void StarfaitByteBuffer_writeUint32LE(StarfaitByteBuffer* buffer, uint32_t value
 uint64_t StarfaitByteBuffer_readUint64LE(StarfaitByteBuffer* buffer);
 StringPointer StarfaitByteBuffer_readStringPointer(StarfaitByteBuffer* buffer);
 void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, size_t* outCount, uint32_t** outAddresses);
+Uint32ArrayList* StarfaitByteBuffer_readAddressesAsArrayList(StarfaitByteBuffer* buffer);
 uint8_t* StarfaitByteBuffer_readBytes(StarfaitByteBuffer* buffer, size_t count);
 char* StarfaitByteBuffer_readChars(StarfaitByteBuffer* buffer, size_t count);
 void StarfaitByteBuffer_skip(StarfaitByteBuffer* buffer, size_t count);

@@ -72,6 +72,21 @@ void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, size_t* outCou
     *outAddresses = addresses;
 }
 
+Uint32ArrayList* StarfaitByteBuffer_readAddressesAsArrayList(StarfaitByteBuffer* buffer) {
+    size_t count;
+    uint32_t* addresses;
+
+    StarfaitByteBuffer_readAddresses(buffer, &count, &addresses);
+
+    Uint32ArrayList* arrayList = Uint32ArrayList_create(count);
+
+    repeat(count, i) {
+        Uint32ArrayList_add(arrayList, addresses[i]);
+    }
+
+    return arrayList;
+}
+
 uint8_t* StarfaitByteBuffer_readBytes(StarfaitByteBuffer* buffer, size_t count) {
     uint8_t* data = malloc(count);
     memcpy(data, buffer->data + buffer->position, count);

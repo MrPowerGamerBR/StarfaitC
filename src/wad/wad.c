@@ -5,6 +5,7 @@
 
 #include "code.h"
 #include "gen8.h"
+#include "scpt.h"
 #include "strg.h"
 #include "vari.h"
 #include "../charutils.h"
@@ -26,6 +27,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
     VARI vari;
     CODE code;
     FUNC func;
+    SCPT scpt;
 
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         char* chunkName = StarfaitByteBuffer_readChars(buffer, 4);
@@ -39,6 +41,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         if (CharUtils_charEquals(chunkName, "VARI")) vari = VARI_parse(buffer, chunkSize);
         if (CharUtils_charEquals(chunkName, "CODE")) code = CODE_parse(buffer);
         if (CharUtils_charEquals(chunkName, "FUNC")) func = FUNC_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "SCPT")) scpt = SCPT_parse(buffer);
 
         StarfaitByteBuffer_jumpTo(buffer, currentPosition + chunkSize);
     }
@@ -49,5 +52,6 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         .vari = vari,
         .code = code,
         .func = func,
+        .scpt = scpt
     };
 }

@@ -112,6 +112,20 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
         }
     }
 
+    // This may be a script!
+    // TODO: Maybe have a HashMap for this too?
+    repeat(vm->wad->scpt.scriptCount, i) {
+        Script* script = &vm->wad->scpt.scripts[i];
+        char* scriptName = STRG_getString(&vm->wad->strg, script->name);
+
+        if (CharUtils_charEquals(scriptName, functionName)) {
+            CodeEntry* codeEntry = &vm->wad->code.codeEntries[script->codeIndex];
+
+            // TODO: We need to dispatch the codeEntry
+            TODO("We still need to figure out how to dispatch specific code entries!");
+        }
+    }
+
     abort();
 }
 
@@ -293,7 +307,8 @@ void remapReferences(StarfaitVM* vm) {
         uint8_t nextDelta = 0;
 
         repeat(function.occurrenceCount, j) {
-            printf("Processing %d\n", j);
+            printf("Processing function %s %d\n", STRG_getString(&vm->wad->strg, function.name), j);
+
             StarfaitByteBuffer_skip(&buffer, nextDelta);
 
             FunctionReferenceOperand operand = {.value = StarfaitByteBuffer_readUint32LE(&buffer)};

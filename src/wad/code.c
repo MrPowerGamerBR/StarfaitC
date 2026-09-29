@@ -4,17 +4,16 @@
 #include <stdlib.h>
 
 #include "code.h"
+
 #include "../starfaitbytebuffer.h"
 #include "../utils.h"
 
 CODE CODE_parse(StarfaitByteBuffer* buffer) {
-    size_t addressCount;
-    uint32_t* addresses;
-    StarfaitByteBuffer_readAddresses(buffer, &addressCount, &addresses);
+    Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
     size_t postAddressPosition = buffer->position;
 
     // This may happen if it is a YYC game OR if it is just a game without any code
-    if (addressCount == 0) {
+    if (addresses->size == 0) {
         free(addresses);
         return (CODE) {
             .codeEntryCount = 0,
@@ -24,16 +23,16 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
         };
     }
 
-    uint32_t minAddressTarget = Utils_minFromArray(addresses, addressCount);
+    uint32_t minAddressTarget = Utils_minFromArray(addresses->elements, addresses->size);
 
     // We want to read ALL the bytecode at once!
     size_t bytecodeSize = minAddressTarget - postAddressPosition;
     uint8_t* bytecode = StarfaitByteBuffer_readBytes(buffer, bytecodeSize);
 
-    CodeEntry* codeEntries = calloc(addressCount, sizeof(CodeEntry));
+    CodeEntry* codeEntries = calloc(addresses->size, sizeof(CodeEntry));
 
-    repeat(addressCount, i) {
-        uint32_t address = addresses[i];
+    repeat(addresses->size, i) {
+        uint32_t address = addresses->elements[i];
         StarfaitByteBuffer_jumpTo(buffer, address);
 
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
@@ -53,13 +52,14 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
         codeEntries[i].offset = offset;
     }
 
-    free(addresses);
-
-    return (CODE) {
-        .codeEntryCount = addressCount,
+    CODE code = (CODE) {
+        .codeEntryCount = addresses->size,
         .codeEntries = codeEntries,
         .postAddressPosition = postAddressPosition,
         .bytecodeSize = bytecodeSize,
         .bytecode = bytecode
     };
+
+    Uint32ArrayList_free(addresses);
+    return code;
 }

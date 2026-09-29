@@ -10,6 +10,7 @@
 #include "instructiondatatype.h"
 #include "../utils.h"
 #include "rvalue.h"
+#include "vm_builtins.h"
 
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
@@ -113,6 +114,7 @@ void remapReferences(StarfaitVM* vm) {
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
     vm->wad = wad;
+    VMBuiltins_registerBuiltins(vm);
     remapReferences(vm);
 
     return vm;

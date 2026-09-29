@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../starfaitbytebuffer.h"
-#include "../utils.h"
+#include "../../starfaitbytebuffer.h"
+#include "../../utils.h"
 
 STRGChunk STRGChunk_parse(StarfaitByteBuffer* buffer) {
     size_t addressCount;

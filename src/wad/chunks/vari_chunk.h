@@ -1,8 +1,8 @@
 #pragma once
 #include "arraylist_variable.h"
-#include "variable.h"
-#include "stringpointer.h"
-#include "../starfaitbytebuffer.h"
+#include "../variable.h"
+#include "../stringpointer.h"
+#include "../../starfaitbytebuffer.h"
 
 typedef struct {
     uint32_t globalVariables;

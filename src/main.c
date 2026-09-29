@@ -7,11 +7,11 @@
 #include "starfaitstring.h"
 #include "utils.h"
 #include "vm/vm.h"
-#include "wad/code_chunk.h"
-#include "wad/func_chunk.h"
-#include "wad/gen8_chunk.h"
-#include "wad/strg_chunk.h"
-#include "wad/vari_chunk.h"
+#include "wad/chunks/code_chunk.h"
+#include "wad/chunks/func_chunk.h"
+#include "wad/chunks/gen8_chunk.h"
+#include "wad/chunks/strg_chunk.h"
+#include "wad/chunks/vari_chunk.h"
 #include "wad/wad.h"
 
 int main() {

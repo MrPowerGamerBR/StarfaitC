@@ -1,6 +1,6 @@
 #pragma once
 #include "arraylist_codeentry.h"
-#include "../starfaitbytebuffer.h"
+#include "../../starfaitbytebuffer.h"
 
 typedef struct {
     CodeEntryArrayList* codeEntries;

@@ -1,13 +1,13 @@
 #pragma once
 #include <stdint.h>
 
-#include "code_chunk.h"
-#include "func_chunk.h"
-#include "gen8_chunk.h"
-#include "path_chunk.h"
-#include "scpt_chunk.h"
-#include "strg_chunk.h"
-#include "vari_chunk.h"
+#include "chunks/code_chunk.h"
+#include "chunks/func_chunk.h"
+#include "chunks/gen8_chunk.h"
+#include "chunks/path_chunk.h"
+#include "chunks/scpt_chunk.h"
+#include "chunks/strg_chunk.h"
+#include "chunks/vari_chunk.h"
 
 typedef struct {
     GEN8Chunk gen8;

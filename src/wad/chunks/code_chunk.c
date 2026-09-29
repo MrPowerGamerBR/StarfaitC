@@ -5,8 +5,8 @@
 
 #include "code_chunk.h"
 
-#include "../starfaitbytebuffer.h"
-#include "../utils.h"
+#include "../../starfaitbytebuffer.h"
+#include "../../utils.h"
 
 CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);

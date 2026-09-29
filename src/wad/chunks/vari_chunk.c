@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../charutils.h"
-#include "../utils.h"
-#include "variable.h"
+#include "../../charutils.h"
+#include "../../utils.h"
+#include "../variable.h"
 #include "vari_chunk.h"
 
 #include "arraylist_variable.h"

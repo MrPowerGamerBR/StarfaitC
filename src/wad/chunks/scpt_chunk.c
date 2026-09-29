@@ -4,11 +4,11 @@
 #include <stdlib.h>
 
 #include "scpt_chunk.h"
-#include "script.h"
+#include "../script.h"
 
 #include "arraylist_uint32.h"
-#include "../starfaitbytebuffer.h"
-#include "../utils.h"
+#include "../../starfaitbytebuffer.h"
+#include "../../utils.h"
 
 SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);

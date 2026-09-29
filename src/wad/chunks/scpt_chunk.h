@@ -1,6 +1,6 @@
 #pragma once
-#include "script.h"
-#include "../starfaitbytebuffer.h"
+#include "../script.h"
+#include "../../starfaitbytebuffer.h"
 #include "arraylist_script.h"
 
 typedef struct {

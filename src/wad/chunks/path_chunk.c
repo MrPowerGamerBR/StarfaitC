@@ -1,10 +1,10 @@
 #include "path_chunk.h"
 
-#include "path.h"
-#include "pathpoint.h"
+#include "../path.h"
+#include "../pathpoint.h"
 #include "arraylist_uint32.h"
-#include "../starfaitbytebuffer.h"
-#include "../utils.h"
+#include "../../starfaitbytebuffer.h"
+#include "../../utils.h"
 
 PATHChunk PATHChunk_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);

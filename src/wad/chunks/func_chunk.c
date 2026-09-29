@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../starfaitbytebuffer.h"
-#include "../utils.h"
+#include "../../starfaitbytebuffer.h"
+#include "../../utils.h"
 
 FUNCChunk FUNCChunk_parse(StarfaitByteBuffer* buffer) {
     size_t count = StarfaitByteBuffer_readUint32LE(buffer);

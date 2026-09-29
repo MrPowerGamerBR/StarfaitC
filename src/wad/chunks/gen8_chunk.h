@@ -1,5 +1,5 @@
 #pragma once
-#include "../starfaitbytebuffer.h"
+#include "../../starfaitbytebuffer.h"
 
 typedef struct {
     bool debugWad;

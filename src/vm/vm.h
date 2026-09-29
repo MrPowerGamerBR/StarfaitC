@@ -1,5 +1,5 @@
 #pragma once
-#include "../wad/code_chunk.h"
+#include "../wad/chunks/code_chunk.h"
 #include "../wad/wad.h"
 #include "vm_stack.h"
 #include "callframe.h"

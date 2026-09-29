@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../utils.h"
-#include "../charutils.h"
+#include "../../utils.h"
+#include "../../charutils.h"
 
 GEN8Chunk GEN8Chunk_parse(StarfaitByteBuffer* buffer) {
     bool debugWad = StarfaitByteBuffer_readUint8Boolean(buffer);

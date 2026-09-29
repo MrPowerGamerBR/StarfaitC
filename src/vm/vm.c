@@ -97,8 +97,7 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
             int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
-            CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
-            RValue variable = readVariableFromInstanceId(vm, VariableReferenceOperand_variableIndex(operand), arrayIndex, VARIABLE_SCOPE_LOCAL);
+            RValue variable = readVariableFromInstanceId(vm, VariableReferenceOperand_variableIndex(operand), arrayIndex, instanceId);
             VMStack_push(&vm->stack, RValue_createCopy(variable));
             break;
         };

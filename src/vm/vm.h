@@ -7,10 +7,14 @@
 #include "vm_forward.h"
 #include "arraylist_rvalue.h"
 #include "arraylist_callframe.h"
+#include "arraylist_string.h"
+#include "globalobject.h"
 
 struct StarfaitVM {
     GameWAD* wad;
     CallFrameArrayList* callFrameStack;
+    GlobalObject* global;
+    StringArrayList* regularVariableNames;
     VMStack stack;
     VMBuiltins* builtins;
 };

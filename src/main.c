@@ -16,7 +16,7 @@
 
 int main() {
     // FILE* file = fopen("/home/mrpowergamerbr/Projects/ButterGMGames/Undertale_108/data.win", "rb");
-    FILE* file = fopen("/home/mrpowergamerbr/Documentos/VMShare/TestStarfaitC23Minimal-Default-1.0.0.10/data.win", "rb");
+    FILE* file = fopen("/home/mrpowergamerbr/Documentos/VMShare/TestStarfaitC23Minimal-Default-1.0.0.12/data.win", "rb");
 
     // Get file size
     fseek(file, 0, SEEK_END);

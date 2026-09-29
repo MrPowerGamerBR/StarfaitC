@@ -64,6 +64,12 @@ arrayListVariants = [
         "name": "CallFrameArrayList",
         "type": "CallFrame",
         "includes": ["\"vm/callframe.h\""]
+    },
+    {
+        "file": "arraylist_string",
+        "name": "StringArrayList",
+        "type": "StarfaitString",
+        "includes": ["\"starfaitstring.h\""]
     }
 ]
 

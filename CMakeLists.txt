@@ -19,6 +19,7 @@ set(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_codeentry.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_rvalue.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_callframe.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_string.h
 )
 
 file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/vm/*.c" "src/vm/*.h")

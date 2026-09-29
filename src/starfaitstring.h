@@ -1,6 +1,10 @@
 #pragma once
+#include <stddef.h>
 
-typedef struct StarfaitString StarfaitString;
+typedef struct {
+    char* data;
+    size_t length;
+} StarfaitString;
 
 StarfaitString* StarfaitString_create(char* original);
 StarfaitString* StarfaitString_concat(StarfaitString* left, StarfaitString* right);

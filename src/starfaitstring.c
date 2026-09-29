@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct StarfaitString {
-    char* data;
-    size_t length;
-};
-
 StarfaitString* createWithLength(size_t length) {
     StarfaitString* string = calloc(1, sizeof(StarfaitString));
     string->data = calloc(length + 1, sizeof(char));

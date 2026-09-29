@@ -15,6 +15,7 @@
 #include "vm_builtins.h"
 #include "../charutils.h"
 #include "../starfaitstring.h"
+#include "arraylist_string.h"
 
 constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
 
@@ -42,13 +43,36 @@ RValue readVariableFromInstanceId(StarfaitVM* vm, int32_t varId, int32_t arrayIn
         switch (scope) {
             case VARIABLE_SCOPE_SELF: TODO();
             case VARIABLE_SCOPE_OTHER: TODO();
-            case VARIABLE_SCOPE_GLOBAL: TODO();
-            case VARIABLE_SCOPE_LOCAL: variableContainer = &StarfaitVM_getCurrentCallFrame(vm)->container;
+            case VARIABLE_SCOPE_GLOBAL: {
+                variableContainer = &vm->global->container;
+                break;
+            }
+            case VARIABLE_SCOPE_LOCAL: {
+                variableContainer = &StarfaitVM_getCurrentCallFrame(vm)->container;
+                break;
+            }
         }
     } else TODO();
 
     RValue rvalue = VariableContainer_getVariable(variableContainer, varId);
     return rvalue;
+}
+
+/**
+ * Prints all variables that a VariableContainer holds, useful for debugging!
+ *
+ * @param vm the StarfaitVM instance
+ * @param container the VariableContainer that you want to see their variables
+ */
+void printVariables(StarfaitVM* vm, VariableContainer* container) {
+    // TODO: It would be cool if the HashMap itself had a "entries" similar to Java's HashMap
+    repeat(container->variables->bucketsCount, bucket) {
+        Int2RValueHashMapEntry* entry = container->variables->buckets[bucket];
+        while (entry != nullptr) {
+            printf("%s=%s\n", StarfaitString_toCharArrayView(StringArrayList_get(vm->regularVariableNames, entry->key - REGULAR_VARIABLES_BASE)), RValue_toString(entry->value));
+            entry = entry->next;
+        }
+    }
 }
 
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
@@ -226,11 +250,16 @@ void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16
                 switch (scope) {
                     case VARIABLE_SCOPE_SELF: TODO();
                     case VARIABLE_SCOPE_OTHER: TODO();
-                    case VARIABLE_SCOPE_GLOBAL: TODO();
+                    case VARIABLE_SCOPE_GLOBAL: {
+                        GlobalObject* callFrame = vm->global;
+                        VariableContainer_setVariable(&callFrame->container, varId, poppedValue);
+                        break;
+                    }
                     case VARIABLE_SCOPE_LOCAL: {
                         // We don't need to copy the variable because we "steal" from the stack
                         CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
                         VariableContainer_setVariable(&callFrame->container, varId, poppedValue);
+                        break;
                     }
                 }
             }
@@ -396,12 +425,20 @@ void remapReferences(StarfaitVM* vm) {
             // And that's all that there's to it!
         }
     }
+
+    StringArrayList* regularVariableNames = StringArrayList_create(allocatedRegularVariables->size);
+    VariableArrayList_forEach(allocatedRegularVariables, variable, i) {
+        StarfaitString* string = StarfaitString_create(STRG_getString(&vm->wad->strg, variable->name));
+        StringArrayList_add(regularVariableNames, *string);
+    }
+    vm->regularVariableNames = regularVariableNames;
 }
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
 
     vm->callFrameStack = CallFrameArrayList_create(1);
+    vm->global = GlobalObject_create();
     vm->builtins = VMBuiltins_create(vm);
     vm->wad = wad;
 

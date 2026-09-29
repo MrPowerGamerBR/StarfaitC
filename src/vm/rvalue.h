@@ -57,9 +57,8 @@ static inline char* RValue_toString(RValue rvalue) {
         case RVALUE_DATA_TYPE_UNDEFINED: return strdup("undefined");
         case RVALUE_DATA_TYPE_STRING: return strdup(rvalue.value.string);
         case RVALUE_DATA_TYPE_INT32: {
-            int n = 123;
             char buf[12];
-            snprintf(buf, sizeof buf, "%d", n);
+            snprintf(buf, sizeof buf, "%d", rvalue.value.int32);
             return strdup(buf);
         }
     }

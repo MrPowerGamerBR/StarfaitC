@@ -11,13 +11,13 @@
 CODE CODE_parse(StarfaitByteBuffer* buffer) {
     Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
     size_t postAddressPosition = buffer->position;
+    CodeEntryArrayList* codeEntries = CodeEntryArrayList_create(addresses->size);
 
     // This may happen if it is a YYC game OR if it is just a game without any code
     if (addresses->size == 0) {
         free(addresses);
-        return (CODE) {
-            .codeEntryCount = 0,
-            .codeEntries = nullptr,
+        return (CODE){
+            .codeEntries = codeEntries,
             .postAddressPosition = postAddressPosition,
             .bytecode = nullptr
         };
@@ -28,8 +28,6 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
     // We want to read ALL the bytecode at once!
     size_t bytecodeSize = minAddressTarget - postAddressPosition;
     uint8_t* bytecode = StarfaitByteBuffer_readBytes(buffer, bytecodeSize);
-
-    CodeEntry* codeEntries = calloc(addresses->size, sizeof(CodeEntry));
 
     repeat(addresses->size, i) {
         uint32_t address = addresses->elements[i];
@@ -43,17 +41,21 @@ CODE CODE_parse(StarfaitByteBuffer* buffer) {
         uint32_t bytecodeRelativeOffset = StarfaitByteBuffer_readUint32LE(buffer);
         uint32_t offset = StarfaitByteBuffer_readUint32LE(buffer);
 
-        codeEntries[i].name = name;
-        codeEntries[i].length = length;
-        codeEntries[i].localsCount = localsCount;
-        codeEntries[i].argumentsCount = argumentsCount;
-        codeEntries[i].bytecodeRelativeOffsetFieldPosition = bytecodeRelativeOffsetFieldPosition;
-        codeEntries[i].bytecodeRelativeOffset = bytecodeRelativeOffset;
-        codeEntries[i].offset = offset;
+        CodeEntryArrayList_add(
+            codeEntries,
+            (CodeEntry){
+                .name = name,
+                .length = length,
+                .localsCount = localsCount,
+                .argumentsCount = argumentsCount,
+                .bytecodeRelativeOffsetFieldPosition = bytecodeRelativeOffsetFieldPosition,
+                .bytecodeRelativeOffset = bytecodeRelativeOffset,
+                .offset = offset
+            }
+        );
     }
 
-    CODE code = (CODE) {
-        .codeEntryCount = addresses->size,
+    CODE code = (CODE){
         .codeEntries = codeEntries,
         .postAddressPosition = postAddressPosition,
         .bytecodeSize = bytecodeSize,

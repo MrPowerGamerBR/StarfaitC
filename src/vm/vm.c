@@ -99,7 +99,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
 
     printf("Function Index is %d\n", functionIndex);
 
-    Function function = vm->wad->func.functions->elements[functionIndex];
+    Function function = *FunctionArrayList_get(vm->wad->func.functions, functionIndex);
     char* functionName = STRG_getString(&vm->wad->strg, function.name);
 
     // TODO: This is BAD, we NEED to use HashMaps for this later
@@ -118,7 +118,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
         char* scriptName = STRG_getString(&vm->wad->strg, script->name);
 
         if (CharUtils_charEquals(scriptName, functionName)) {
-            CodeEntry* codeEntry = &vm->wad->code.codeEntries[script->codeIndex];
+            CodeEntry* codeEntry = CodeEntryArrayList_get(vm->wad->code.codeEntries, script->codeIndex);
 
             RValue value = StarfaitVM_executeCode(vm, codeEntry);
             VMStack_push(&vm->stack, value);

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mathutils.h"
+#include "utils.h"
 __INCLUDES__
 
 typedef struct {
@@ -34,6 +35,11 @@ static inline void __ARRAY_LIST_NAME___add(__ARRAY_LIST_NAME__* list, __ARRAY_LI
     }
     list->elements[list->size] = element;
     list->size++;
+}
+
+static inline __ARRAY_LIST_TYPE__* __ARRAY_LIST_NAME___get(__ARRAY_LIST_NAME__* list, uint32_t index) {
+    require(list->size > index);
+    return &list->elements[index];
 }
 
 static inline void __ARRAY_LIST_NAME___free(__ARRAY_LIST_NAME__* list) {

@@ -4,6 +4,7 @@
 
 #include "charutils.h"
 #include "starfaitbytebuffer.h"
+#include "starfaitstring.h"
 #include "utils.h"
 #include "vm/vm.h"
 #include "wad/code.h"
@@ -15,7 +16,7 @@
 
 int main() {
     // FILE* file = fopen("/home/mrpowergamerbr/Projects/ButterGMGames/Undertale_108/data.win", "rb");
-    FILE* file = fopen("/home/mrpowergamerbr/Documentos/VMShare/TestStarfaitC23Minimal-Default-1.0.0.3/data.win", "rb");
+    FILE* file = fopen("/home/mrpowergamerbr/Documentos/VMShare/TestStarfaitC23Minimal-Default-1.0.0.4/data.win", "rb");
 
     // Get file size
     fseek(file, 0, SEEK_END);

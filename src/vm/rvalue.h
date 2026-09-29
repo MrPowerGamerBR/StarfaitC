@@ -9,6 +9,7 @@ typedef struct {
         int32_t int32;
         char* string;
         double real;
+        bool boolean;
     } value;
     // If true, then you should free any of the values when the value gets out of scope
     bool isOwned;
@@ -45,6 +46,14 @@ static inline RValue RValue_createInt32(int32_t value) {
     };
 }
 
+static inline RValue RValue_createBoolean(bool value) {
+    return (RValue) {
+        .type = RVALUE_DATA_TYPE_BOOLEAN,
+        .value = { .boolean = value },
+        .isOwned = false
+    };
+}
+
 static inline RValue RValue_createReal(int32_t value) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_REAL,
@@ -52,7 +61,6 @@ static inline RValue RValue_createReal(int32_t value) {
         .isOwned = false
     };
 }
-
 
 /**
  * Converts the RValue to a String
@@ -84,6 +92,30 @@ static inline char* RValue_toString(RValue rvalue) {
             snprintf(buf, sizeof(buf), "%.2f", rvalue.value.real);
             return strdup(buf);
         }
+        case RVALUE_DATA_TYPE_BOOLEAN:
+            return strdup(rvalue.value.boolean ? "1" : "0");
+    }
+    abort();
+}
+
+static inline double RValue_getAsReal(RValue rvalue) {
+    switch (rvalue.type) {
+        case RVALUE_DATA_TYPE_UNDEFINED: TODO();
+        case RVALUE_DATA_TYPE_STRING: TODO();
+        case RVALUE_DATA_TYPE_INT32: return rvalue.value.int32;
+        case RVALUE_DATA_TYPE_BOOLEAN: TODO();
+        case RVALUE_DATA_TYPE_REAL: return rvalue.value.real;
+    }
+    abort();
+}
+
+static inline bool RValue_getAsBoolean(RValue rvalue) {
+    switch (rvalue.type) {
+        case RVALUE_DATA_TYPE_UNDEFINED: TODO();
+        case RVALUE_DATA_TYPE_STRING: TODO();
+        case RVALUE_DATA_TYPE_INT32: TODO();
+        case RVALUE_DATA_TYPE_BOOLEAN: return rvalue.value.boolean;
+        case RVALUE_DATA_TYPE_REAL: TODO();
     }
     abort();
 }

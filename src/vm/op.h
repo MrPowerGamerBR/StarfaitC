@@ -39,9 +39,9 @@
 #define MAKE_ENUM(name, val) name = val,
 typedef enum : uint8_t {
     OPCODES(MAKE_ENUM)
-} Opcode;
+} Op;
 
-static inline const char* Op_getOpcodeName(Opcode op) {
+static inline const char* Op_getOpcodeName(Op op) {
     switch (op) {
 #define X_CASE(name, val) case val: return #name;
         OPCODES(X_CASE)

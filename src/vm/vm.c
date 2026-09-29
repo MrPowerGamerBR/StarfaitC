@@ -14,6 +14,7 @@
 #include "variablescope.h"
 #include "vm_builtins.h"
 #include "../charutils.h"
+#include "../starfaitstring.h"
 
 constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
 
@@ -166,7 +167,65 @@ void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint1
     RValue right = VMStack_pop(&vm->stack);
     RValue left = VMStack_pop(&vm->stack);
 
+    if (left.type == RVALUE_DATA_TYPE_STRING || right.type == RVALUE_DATA_TYPE_STRING) {
+        if (left.type != RVALUE_DATA_TYPE_STRING || right.type != RVALUE_DATA_TYPE_STRING) {
+            bye("DoAdd :: Execution Error");
+        }
+
+        StarfaitString* leftString = StarfaitString_create(left.value.string);
+        StarfaitString* rightString = StarfaitString_create(right.value.string);
+
+        StarfaitString* concat = StarfaitString_concat(leftString, rightString);
+
+        VMStack_push(&vm->stack, RValue_createOwnedString(strdup(StarfaitString_toCCharArray(concat))));
+
+        StarfaitString_free(leftString);
+        StarfaitString_free(rightString);
+        StarfaitString_free(concat);
+        return;
+    }
+
     VMStack_push(&vm->stack, RValue_createReal(left.value.int32 + right.value.int32));
+}
+
+void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t type1, uint16_t type2) {
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+    InstructionDataType type2DataType = InstructionDataType_byId(type2);
+
+    // The YoYo Runner uses the type1/type2 data types to know how many bytes to read from the stack
+    // Because we use tagged RValues, we don't need them for this
+    RValue right = VMStack_pop(&vm->stack);
+    RValue left = VMStack_pop(&vm->stack);
+
+    switch (cmpOp) {
+        case CMPOP_LESS_THAN: TODO();
+        case CMPOP_LESS_THAN_OR_EQUAL: TODO();
+        case CMPOP_EQUAL: {
+            VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsReal(left) == RValue_getAsReal(right)));
+            break;
+        };
+        case CMPOP_NOT_EQUAL: TODO();
+        case CMPOP_GREATER_THAN_OR_EQUAL: TODO();
+        case CMPOP_GREATER_THAN: TODO();
+    }
+}
+
+void handleB([[maybe_unused]] StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
+    buffer->position += branchOffset;
+}
+
+void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
+    bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
+    if (result) {
+        buffer->position += branchOffset;
+    }
+}
+
+void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t branchOffset) {
+    bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
+    if (!result) {
+        buffer->position += branchOffset;
+    }
 }
 
 /**
@@ -272,7 +331,7 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
         size_t start = buffer->position;
 
         OpWord word = {.value = StarfaitByteBuffer_readUint32LE(buffer)};
-        Opcode opcode = OpWord_opcode(word);
+        Op opcode = OpWord_opcode(word);
         uint16_t type1 = OpWord_type1(word);
         uint16_t type2 = OpWord_type2(word);
         int16_t extra = OpWord_extra(word);
@@ -322,6 +381,22 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
             }
             case OP_CONV: {
                 handleConv(vm, type1, type2);
+                break;
+            }
+            case OP_CMP: {
+                handleCmp(vm, buffer, OpWord_comparisonFunction(word), type1, type2);
+                break;
+            }
+            case OP_B: {
+                handleB(vm, buffer, OpWord_branchOffset(word));
+                break;
+            }
+            case OP_BT: {
+                handleBT(vm, buffer, OpWord_branchOffset(word));
+                break;
+            }
+            case OP_BF: {
+                handleBF(vm, buffer, OpWord_branchOffset(word));
                 break;
             }
             default:

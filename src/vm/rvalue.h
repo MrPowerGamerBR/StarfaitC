@@ -114,7 +114,8 @@ static inline bool RValue_getAsBoolean(RValue rvalue) {
         case RVALUE_DATA_TYPE_STRING: TODO();
         case RVALUE_DATA_TYPE_INT32: TODO();
         case RVALUE_DATA_TYPE_BOOLEAN: return rvalue.value.boolean;
-        case RVALUE_DATA_TYPE_REAL: TODO();
+        // GameMaker-HTML5's yyGetBool returns true if the value is > 0.5
+        case RVALUE_DATA_TYPE_REAL: return rvalue.value.real > 0.5;
     }
     abort();
 }

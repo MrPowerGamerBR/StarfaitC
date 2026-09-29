@@ -86,7 +86,10 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int3
         }
         case DATA_TYPE_DOUBLE: TODO();
         case DATA_TYPE_FLOAT: TODO();
-        case DATA_TYPE_INT32: TODO();
+        case DATA_TYPE_INT32: {
+            VMStack_push(&vm->stack, RValue_createInt32(StarfaitByteBuffer_readInt32LE(buffer)));
+            break;
+        };
         case DATA_TYPE_INT64: TODO();
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: {
@@ -160,14 +163,18 @@ void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
     switch (destinationType) {
         // no-op, this is only useful if some day we decide to go with non-tagged RValues (that is, using two arrays, one for native values and another for RValues)
         // Because in that case, we would need to convert the RValue to the native type
-        case DATA_TYPE_VARIABLE:
+        case DATA_TYPE_VARIABLE: {
             VMStack_push(&vm->stack, pop);
             return;
+        }
         case DATA_TYPE_DOUBLE: TODO();
         case DATA_TYPE_FLOAT: TODO();
         case DATA_TYPE_INT32: TODO();
         case DATA_TYPE_INT64: TODO();
-        case DATA_TYPE_BOOLEAN: TODO();
+        case DATA_TYPE_BOOLEAN: {
+            VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsBoolean(pop)));
+            return;
+        }
         case DATA_TYPE_STRING: TODO();
         case DATA_TYPE_INT16: TODO();
     }
@@ -299,6 +306,17 @@ void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint1
     VMStack_push(&vm->stack, RValue_createReal(RValue_getAsReal(left) + RValue_getAsReal(right)));
 }
 
+void handleSub(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint16_t type2) {
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+    InstructionDataType type2DataType = InstructionDataType_byId(type2);
+
+    // The YoYo Runner uses the type1/type2 data types to know how many bytes to read from the stack
+    // Because we use tagged RValues, we don't need them for this
+    RValue right = VMStack_pop(&vm->stack);
+    RValue left = VMStack_pop(&vm->stack);
+    VMStack_push(&vm->stack, RValue_createReal(RValue_getAsReal(left) - RValue_getAsReal(right)));
+}
+
 void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t type1, uint16_t type2) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
     InstructionDataType type2DataType = InstructionDataType_byId(type2);
@@ -308,19 +326,34 @@ void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t
     RValue right = VMStack_pop(&vm->stack);
     RValue left = VMStack_pop(&vm->stack);
 
+    double leftReal = RValue_getAsReal(left);
+    double rightReal = RValue_getAsReal(right);
+
     switch (cmpOp) {
-        case CMPOP_LESS_THAN: TODO();
-        case CMPOP_LESS_THAN_OR_EQUAL: TODO();
         case CMPOP_EQUAL: {
-            VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsReal(left) == RValue_getAsReal(right)));
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal == rightReal));
             break;
-        };
+        }
         case CMPOP_NOT_EQUAL: {
-            VMStack_push(&vm->stack, RValue_createBoolean(RValue_getAsReal(left) != RValue_getAsReal(right)));
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal != rightReal));
             break;
-        };
-        case CMPOP_GREATER_THAN_OR_EQUAL: TODO();
-        case CMPOP_GREATER_THAN: TODO();
+        }
+        case CMPOP_LESS_THAN: {
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal < rightReal));
+            break;
+        }
+        case CMPOP_LESS_THAN_OR_EQUAL: {
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal <= rightReal));
+            break;
+        }
+        case CMPOP_GREATER_THAN_OR_EQUAL: {
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal >= rightReal));
+            break;
+        }
+        case CMPOP_GREATER_THAN: {
+            VMStack_push(&vm->stack, RValue_createBoolean(leftReal > rightReal));
+            break;
+        }
     }
 }
 
@@ -342,6 +375,22 @@ void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) 
     if (!result) {
         // Branches are in relation to the start of the instruction
         buffer->position += (branchOffset - 4);
+    }
+}
+
+void handleDup(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16_t extra) {
+    // In the YoYo Runner, the type1 would've been used to figure out how many bytes to be copied from the stack
+    // Because all of our types are tagged RValues, we don't need to rely on it (yay)
+    // extra = how many additional elements will be copied from the stack, that is...
+    // If the stack is [a, b], and extra is 1, the result will be [a, b, a, b]
+    // TODO: TECHNICALLY while this does work with Undertale (I think?), newer GameMaker games do emit a pattern like "dup int 1" when the top of the stack is, in fact, not a integer
+    //  See how Butterscotch handles handleDup for reference
+    require(extra >= 0, "Negative extra value on the dup!");
+    int32_t total = extra + 1;
+    int32_t dupBottom = vm->stack.top - 1 - extra;
+    repeat(total, i) {
+        RValue target = VMStack_peekAt(&vm->stack, dupBottom + i);
+        VMStack_push(&vm->stack, target);
     }
 }
 
@@ -492,6 +541,10 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
                 handleAdd(vm, buffer, type1, type2);
                 break;
             }
+            case OP_SUB: {
+                handleSub(vm, buffer, type1, type2);
+                break;
+            }
             case OP_CALL: {
                 handleCall(vm, buffer, extra);
                 break;
@@ -522,6 +575,10 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
             }
             case OP_BF: {
                 handleBF(vm, buffer, OpWord_branchOffset(word));
+                break;
+            }
+            case OP_DUP: {
+                handleDup(vm, buffer, type1, extra);
                 break;
             }
             default:

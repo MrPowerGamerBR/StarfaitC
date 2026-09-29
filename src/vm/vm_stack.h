@@ -14,3 +14,4 @@ typedef struct {
 void VMStack_push(VMStack* stack, RValue value);
 RValue VMStack_pop(VMStack* stack);
 RValue VMStack_peek(VMStack* stack);
+RValue VMStack_peekAt(VMStack* stack, uint32_t index);

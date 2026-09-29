@@ -153,9 +153,20 @@ void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16
     }
 }
 
-
 void handlePopz(StarfaitVM* vm) {
     VMStack_pop(&vm->stack);
+}
+
+void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint16_t type2) {
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+    InstructionDataType type2DataType = InstructionDataType_byId(type2);
+
+    // The YoYo Runner uses the type1/type2 data types to know how many bytes to read from the stack
+    // Because we use tagged RValues, we don't need them for this
+    RValue right = VMStack_pop(&vm->stack);
+    RValue left = VMStack_pop(&vm->stack);
+
+    VMStack_push(&vm->stack, RValue_createReal(left.value.int32 + right.value.int32));
 }
 
 /**
@@ -291,6 +302,10 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
             }
             case OP_PUSH_IMMEDIATE: {
                 handlePushImmediate(vm, extra);
+                break;
+            }
+            case OP_ADD: {
+                handleAdd(vm, buffer, type1, type2);
                 break;
             }
             case OP_CALL: {

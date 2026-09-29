@@ -8,6 +8,7 @@ typedef struct {
     union {
         int32_t int32;
         char* string;
+        double real;
     } value;
     // If true, then you should free any of the values when the value gets out of scope
     bool isOwned;
@@ -44,6 +45,15 @@ static inline RValue RValue_createInt32(int32_t value) {
     };
 }
 
+static inline RValue RValue_createReal(int32_t value) {
+    return (RValue) {
+        .type = RVALUE_DATA_TYPE_REAL,
+        .value = { .real = value },
+        .isOwned = false
+    };
+}
+
+
 /**
  * Converts the RValue to a String
  *
@@ -58,7 +68,20 @@ static inline char* RValue_toString(RValue rvalue) {
         case RVALUE_DATA_TYPE_STRING: return strdup(rvalue.value.string);
         case RVALUE_DATA_TYPE_INT32: {
             char buf[12];
-            snprintf(buf, sizeof buf, "%d", rvalue.value.int32);
+            snprintf(buf, sizeof(buf), "%d", rvalue.value.int32);
+            return strdup(buf);
+        }
+        case RVALUE_DATA_TYPE_REAL: {
+            // Truncate value, if it is the same as the long result, then we don't need to render decimal places
+            uint64_t asLong = (uint64_t) rvalue.value.real;
+            if (asLong == rvalue.value.real) {
+                char buf[12];
+                snprintf(buf, sizeof(buf), "%lu", asLong);
+                return strdup(buf);
+            }
+
+            char buf[12];
+            snprintf(buf, sizeof(buf), "%.2f", rvalue.value.real);
             return strdup(buf);
         }
     }

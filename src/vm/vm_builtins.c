@@ -6,6 +6,10 @@ RValue builtin_show_debug_message([[maybe_unused]] StarfaitVM* vm, [[maybe_unuse
     return RValue_createUndefined();
 }
 
+RValue builtin_string([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
+    return RValue_createOwnedString(RValue_toString(args[0]));
+}
+
 void registerBuiltin(StarfaitVM* vm, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {
     BuiltinFunctionArrayList_add(
         vm->builtinFunctionsArrayList,
@@ -18,4 +22,5 @@ void registerBuiltin(StarfaitVM* vm, const char* name, RValue (*builtinFunction)
 
 void VMBuiltins_registerBuiltins(StarfaitVM* vm) {
     registerBuiltin(vm, "show_debug_message", builtin_show_debug_message);
+    registerBuiltin(vm, "string", builtin_string);
 }

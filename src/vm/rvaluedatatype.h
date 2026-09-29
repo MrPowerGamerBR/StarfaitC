@@ -5,7 +5,8 @@
 
 #define RVALUE_DATA_TYPES(X) \
     X(RVALUE_DATA_TYPE_UNDEFINED, 0) \
-    X(RVALUE_DATA_TYPE_STRING, 1)
+    X(RVALUE_DATA_TYPE_STRING, 1) \
+    X(RVALUE_DATA_TYPE_INT32, 2)
 
 #define MAKE_ENUM(name, val) name = val,
 

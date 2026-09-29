@@ -17,32 +17,22 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
-        case DATA_TYPE_DOUBLE:
-            abort();
-            break;
-        case DATA_TYPE_FLOAT:
-            abort();
-            break;
-        case DATA_TYPE_INT32:
-            abort();
-            break;
-        case DATA_TYPE_INT64:
-            abort();
-            break;
-        case DATA_TYPE_BOOLEAN:
-            abort();
-            break;
-        case DATA_TYPE_VARIABLE:
-            abort();
-            break;
+        case DATA_TYPE_DOUBLE: TODO();
+        case DATA_TYPE_FLOAT: TODO();
+        case DATA_TYPE_INT32: TODO();
+        case DATA_TYPE_INT64: TODO();
+        case DATA_TYPE_BOOLEAN: TODO();
+        case DATA_TYPE_VARIABLE: TODO();
         case DATA_TYPE_STRING:
             uint32_t stringIndex = StarfaitByteBuffer_readUint32LE(buffer);
             VMStack_push(&vm->stack, RValue_createReferencedString(vm->wad->strg.strings[stringIndex]->string));
             break;
-        case DATA_TYPE_INT16:
-            abort();
-            break;
+        case DATA_TYPE_INT16: TODO();
     }
+}
+
+void handlePushImmediate(StarfaitVM* vm, uint16_t extra) {
+    VMStack_push(&vm->stack, RValue_createInt32(extra));
 }
 
 void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
@@ -160,6 +150,10 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
         switch (opcode) {
             case OP_PUSH: {
                 handlePush(vm, buffer, type1);
+                break;
+            }
+            case OP_PUSH_IMMEDIATE: {
+                handlePushImmediate(vm, extra);
                 break;
             }
             case OP_CALL: {

@@ -146,7 +146,12 @@ static void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_
     Variable* variable = VariableArrayList_get(vm->wad->vari.variables, varId);
     printf("Variable is %s\n", STRGChunk_getString(&vm->wad->strg, variable->name));
 
-    RValue result = vm->builtins->builtinVariablesArrayList->elements[0].builtinVariableReader(vm, -1);
+    BuiltinVariable variableHandler = vm->builtinVariableHandlers->elements[varId];
+
+    if (variableHandler.builtinVariableReader == nullptr)
+        bye("Tried reading from unimplemented builtin variable \"%s\"!\n", variableHandler.name);
+
+    RValue result = variableHandler.builtinVariableReader(vm, -1);
     VMStack_push(&vm->stack, result);
 }
 
@@ -475,11 +480,43 @@ static void remapReferences(StarfaitVM* vm) {
         }
     }
 
+    BuiltinVariableArrayList* builtinVariableHandlers = BuiltinVariableArrayList_create(allocatedBuiltinVariables->size);
+    VariableArrayList_forEach(allocatedBuiltinVariables, variable, i) {
+        char* name = STRGChunk_getString(&vm->wad->strg, variable->name);
+
+        bool found = false;
+
+        // Get registered variable handler
+        repeat(vm->builtins->builtinVariablesArrayList->size, j) {
+            BuiltinVariable* builtinVariable = &vm->builtins->builtinVariablesArrayList->elements[j];
+
+            if (CharUtils_charEquals(name, builtinVariable->name)) {
+                found = true;
+                BuiltinVariableArrayList_add(builtinVariableHandlers, *builtinVariable);
+                break;
+            }
+        }
+
+        if (!found) {
+            // Unknown handler!
+            BuiltinVariableArrayList_add(
+                builtinVariableHandlers,
+                (BuiltinVariable) {
+                    .name = name,
+                    .builtinVariableReader = nullptr
+                }
+            );
+        }
+    }
+
+    vm->builtinVariableHandlers = builtinVariableHandlers;
+
     StringArrayList* regularVariableNames = StringArrayList_create(allocatedRegularVariables->size);
     VariableArrayList_forEach(allocatedRegularVariables, variable, i) {
         StarfaitString* string = StarfaitString_create(STRGChunk_getString(&vm->wad->strg, variable->name));
         StringArrayList_add(regularVariableNames, *string);
     }
+
     vm->regularVariableNames = regularVariableNames;
 }
 
@@ -597,7 +634,7 @@ RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code, RValueArrayList* 
     CallFrame* callFrame = CallFrame_create();
 
     RValueArrayList_forEach(arguments, argument, i) {
-        RValueArrayList_set(callFrame->arguments, i, RValue_createCopy(*argument));
+        RValueArrayList_add(callFrame->arguments, RValue_createCopy(*argument));
     }
 
     CallFrameArrayList_add(vm->callFrameStack, *callFrame);

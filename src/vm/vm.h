@@ -17,6 +17,7 @@ struct StarfaitVM {
     StringArrayList* regularVariableNames;
     VMStack stack;
     VMBuiltins* builtins;
+    BuiltinVariableArrayList* builtinVariableHandlers;
 };
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad);

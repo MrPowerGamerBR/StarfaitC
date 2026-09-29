@@ -13,11 +13,7 @@ typedef struct {
 static inline CallFrame* CallFrame_create() {
     CallFrame* callFrame = calloc(1, sizeof(CallFrame));
     callFrame->container.variables = Int32RValueHashMap_create(8);
-
     callFrame->arguments = RValueArrayList_create(16);
-    repeat(16, i) {
-        RValueArrayList_add(callFrame->arguments, RValue_createUndefined());
-    }
 
     return callFrame;
 }

@@ -30,7 +30,7 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
         case DATA_TYPE_VARIABLE: TODO();
         case DATA_TYPE_STRING:
             uint32_t stringIndex = StarfaitByteBuffer_readUint32LE(buffer);
-            VMStack_push(&vm->stack, RValue_createReferencedString(vm->wad->strg.strings[stringIndex]->string));
+            VMStack_push(&vm->stack, RValue_createStringFromCStringCopy(vm->wad->strg.strings[stringIndex]->string));
             break;
         case DATA_TYPE_INT16: TODO();
     }
@@ -52,7 +52,7 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
             RValue localVariable = VariableContainer_getVariable(&vm->callFrame->container, VariableReferenceOperand_variableIndex(operand));
-            VMStack_push(&vm->stack, localVariable);
+            VMStack_push(&vm->stack, RValue_createCopy(localVariable));
             break;
         };
         case DATA_TYPE_STRING: TODO();
@@ -60,6 +60,22 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1,
     }
 }
 
+void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
+    // Pushes a builtin variable to the stack
+    // handlePushBuiltin type1 is always "VARIABLE"
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+
+    VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readInt32LE(buffer)};
+    uint32_t varId = VariableReferenceOperand_variableIndex(operand);
+
+    printf("varID: %d\n", varId);
+
+    Variable* variable = VariableArrayList_get(vm->wad->vari.variables, varId);
+    printf("Variable is %s\n", STRG_getString(&vm->wad->strg, variable->name));
+
+    RValue result = vm->builtins->builtinVariablesArrayList->elements[0].builtinVariableReader(vm, -1);
+    VMStack_push(&vm->stack, result);
+}
 
 void handlePushImmediate(StarfaitVM* vm, int16_t extra) {
     VMStack_push(&vm->stack, RValue_createInt32(extra));
@@ -103,11 +119,15 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
     char* functionName = STRG_getString(&vm->wad->strg, function.name);
 
     // TODO: This is BAD, we NEED to use HashMaps for this later
-    repeat(vm->builtinFunctionsArrayList->size, i) {
-        BuiltinFunction builtinFunction = vm->builtinFunctionsArrayList->elements[i];
-        if (CharUtils_charEquals(builtinFunction.name, functionName)) {
-            RValue result = builtinFunction.builtinFunction(vm, extra, arguments);
+    BuiltinFunctionArrayList_forEach(vm->builtins->builtinFunctionsArrayList, builtinFunction, i) {
+        if (CharUtils_charEquals(builtinFunction->name, functionName)) {
+            RValue result = builtinFunction->builtinFunction(vm, extra, arguments);
             VMStack_push(&vm->stack, result);
+
+            // Free call arguments
+            repeat(extra, j) {
+                RValue_free(arguments[j]);
+            }
             return;
         }
     }
@@ -120,8 +140,19 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
         if (CharUtils_charEquals(scriptName, functionName)) {
             CodeEntry* codeEntry = CodeEntryArrayList_get(vm->wad->code.codeEntries, script->codeIndex);
 
+            // When doing this, the new call frame will have the arguments of the script
+            // We still don't have proper CallFrames, but for now, this shall do
+            repeat(extra, j) {
+                vm->callFrame->arguments[j] = arguments[j];
+            }
+
             RValue value = StarfaitVM_executeCode(vm, codeEntry);
             VMStack_push(&vm->stack, value);
+
+            // Free call arguments
+            repeat(extra, j) {
+                RValue_free(arguments[j]);
+            }
             return;
         }
     }
@@ -157,6 +188,7 @@ void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16
                     case VARIABLE_SCOPE_OTHER: TODO();
                     case VARIABLE_SCOPE_GLOBAL: TODO();
                     case VARIABLE_SCOPE_LOCAL: {
+                        // We don't need to copy the variable because we "steal" from the stack
                         VariableContainer_setVariable(&vm->callFrame->container, varId, poppedValue);
                     }
                 }
@@ -186,15 +218,10 @@ void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint1
             bye("DoAdd :: Execution Error");
         }
 
-        StarfaitString* leftString = StarfaitString_create(left.value.string);
-        StarfaitString* rightString = StarfaitString_create(right.value.string);
+        StarfaitString* concat = StarfaitString_concat(left.value.string, right.value.string);
 
-        StarfaitString* concat = StarfaitString_concat(leftString, rightString);
+        VMStack_push(&vm->stack, RValue_createStringFromCStringCopy(strdup(StarfaitString_toCharArrayView(concat))));
 
-        VMStack_push(&vm->stack, RValue_createOwnedString(strdup(StarfaitString_toCCharArray(concat))));
-
-        StarfaitString_free(leftString);
-        StarfaitString_free(rightString);
         StarfaitString_free(concat);
         return;
     }
@@ -276,7 +303,7 @@ void remapReferences(StarfaitVM* vm) {
             uint8_t nextDelta = 0;
 
             repeat(variable->occurrenceCount, j) {
-                printf("Processing %d with variable handler ID %d (delta is %d)\n", j, variableHandlerId, nextDelta);
+                printf("Processing %d (%s) with variable handler ID %d (delta is %d)\n", j, STRG_getString(&vm->wad->strg, variable->name), variableHandlerId, nextDelta);
                 StarfaitByteBuffer_skip(&buffer, nextDelta);
 
                 VariableReferenceOperand operand = {.value = StarfaitByteBuffer_readUint32LE(&buffer)};
@@ -326,13 +353,11 @@ void remapReferences(StarfaitVM* vm) {
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
-    BuiltinFunctionArrayList* builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
-    vm->builtinFunctionsArrayList = builtinFunctionsArrayList;
+    vm->builtins = VMBuiltins_create(vm);
     vm->callFrame = calloc(1, sizeof(CallFrame));
     vm->callFrame->container.variables = Int2RValueHashMap_create(8);
 
     vm->wad = wad;
-    VMBuiltins_registerBuiltins(vm);
     remapReferences(vm);
 
     return vm;
@@ -370,6 +395,10 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
             }
             case OP_PUSH_LOCAL: {
                 handlePushLocal(vm, buffer, type1, extra);
+                break;
+            }
+            case OP_PUSH_BUILTIN: {
+                handlePushBuiltin(vm, buffer, type1);
                 break;
             }
             case OP_PUSH_IMMEDIATE: {

@@ -3,14 +3,14 @@
 #include "../wad/wad.h"
 #include "vm_stack.h"
 #include "callframe.h"
-#include "arraylist_builtinfunction.h"
-#include "arraylist_variable.h"
+#include "vm_builtins.h"
+#include "vm_forward.h"
 
 struct StarfaitVM {
     GameWAD* wad;
     CallFrame* callFrame;
     VMStack stack;
-    BuiltinFunctionArrayList* builtinFunctionsArrayList;
+    VMBuiltins* builtins;
 };
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad);

@@ -4,5 +4,5 @@
 
 typedef struct {
     const char* name;
-    RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*);
-} BuiltinFunction;
+    RValue (*builtinVariableReader)(StarfaitVM*, int32_t);
+} BuiltinVariable;

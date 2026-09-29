@@ -4,4 +4,5 @@
 
 typedef struct {
     VariableContainer container;
+    RValue arguments[16];
 } CallFrame;

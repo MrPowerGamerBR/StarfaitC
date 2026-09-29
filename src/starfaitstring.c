@@ -32,7 +32,7 @@ StarfaitString* StarfaitString_concat(StarfaitString* left, StarfaitString* righ
     return string;
 }
 
-char* StarfaitString_toCCharArray(StarfaitString* string) {
+char* StarfaitString_toCharArrayView(StarfaitString* string) {
     return string->data;
 }
 

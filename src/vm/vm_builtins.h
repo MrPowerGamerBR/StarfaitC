@@ -1,4 +1,10 @@
 #pragma once
-#include "vm.h"
+#include "arraylist_builtinfunction.h"
+#include "arraylist_builtinvariable.h"
 
-void VMBuiltins_registerBuiltins(StarfaitVM* vm);
+typedef struct {
+    BuiltinFunctionArrayList* builtinFunctionsArrayList;
+    BuiltinVariableArrayList* builtinVariablesArrayList;
+} VMBuiltins;
+
+VMBuiltins* VMBuiltins_create(StarfaitVM* vm);

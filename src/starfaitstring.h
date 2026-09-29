@@ -4,5 +4,5 @@ typedef struct StarfaitString StarfaitString;
 
 StarfaitString* StarfaitString_create(char* original);
 StarfaitString* StarfaitString_concat(StarfaitString* left, StarfaitString* right);
-char* StarfaitString_toCCharArray(StarfaitString* string);
+char* StarfaitString_toCharArrayView(StarfaitString* string);
 void StarfaitString_free(StarfaitString* string);

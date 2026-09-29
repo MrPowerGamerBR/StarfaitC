@@ -1,5 +1,7 @@
 #include "vm_builtins.h"
 
+#include "vm.h"
+
 RValue builtin_show_debug_message([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
     printf("Game: %s\n", RValue_toString(args[0]));
 
@@ -7,12 +9,16 @@ RValue builtin_show_debug_message([[maybe_unused]] StarfaitVM* vm, [[maybe_unuse
 }
 
 RValue builtin_string([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] uint32_t argCount, RValue* args) {
-    return RValue_createOwnedString(RValue_toString(args[0]));
+    return RValue_createStringFromCStringCopyAndFree(RValue_toString(args[0]));
 }
 
-void registerBuiltin(StarfaitVM* vm, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {
+RValue variable_reader_argument0([[maybe_unused]] StarfaitVM* vm, int32_t arrayIndex) {
+    return RValue_createCopy(vm->callFrame->arguments[0]);
+}
+
+void registerBuiltinFunction(VMBuiltins* builtins, const char* name, RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*)) {
     BuiltinFunctionArrayList_add(
-        vm->builtinFunctionsArrayList,
+        builtins->builtinFunctionsArrayList,
         (BuiltinFunction){
             .name = name,
             .builtinFunction = builtinFunction
@@ -20,7 +26,25 @@ void registerBuiltin(StarfaitVM* vm, const char* name, RValue (*builtinFunction)
     );
 }
 
-void VMBuiltins_registerBuiltins(StarfaitVM* vm) {
-    registerBuiltin(vm, "show_debug_message", builtin_show_debug_message);
-    registerBuiltin(vm, "string", builtin_string);
+void registerBuiltinVariable(VMBuiltins* builtins, const char* name, RValue (*builtinVariableReader)(StarfaitVM*, int32_t)) {
+    BuiltinVariableArrayList_add(
+        builtins->builtinVariablesArrayList,
+        (BuiltinVariable){
+            .name = name,
+            .builtinVariableReader = builtinVariableReader
+        }
+    );
+}
+
+VMBuiltins* VMBuiltins_create(StarfaitVM* vm) {
+    VMBuiltins* builtins = calloc(1, sizeof(VMBuiltins));
+    builtins->builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
+    builtins->builtinVariablesArrayList = BuiltinVariableArrayList_create(8);
+
+    registerBuiltinFunction(builtins, "show_debug_message", builtin_show_debug_message);
+    registerBuiltinFunction(builtins, "string", builtin_string);
+
+    registerBuiltinVariable(builtins, "argument0", variable_reader_argument0);
+
+    return builtins;
 }

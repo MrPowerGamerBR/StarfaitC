@@ -1,64 +1,63 @@
 #pragma once
 
 #include "rvaluedatatype.h"
+#include "starfaitstring.h"
 #include "../utils.h"
 
 typedef struct {
     RValueDataType type;
     union {
         int32_t int32;
-        char* string;
+        StarfaitString* string;
         double real;
         bool boolean;
     } value;
-    // If true, then you should free any of the values when the value gets out of scope
-    bool isOwned;
 } RValue;
 
 static inline RValue RValue_createUndefined() {
     return (RValue) {
-        .type = RVALUE_DATA_TYPE_UNDEFINED,
-        .isOwned = false
+        .type = RVALUE_DATA_TYPE_UNDEFINED
     };
 }
 
-static inline RValue RValue_createReferencedString(char* string) {
+static inline RValue RValue_createString(StarfaitString* string) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_STRING,
-        .value = { .string = string },
-        .isOwned = false
+        .value = { .string = string }
     };
 }
 
-static inline RValue RValue_createOwnedString(char* string) {
+static inline RValue RValue_createStringFromCStringCopy(char* string) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_STRING,
-        .value = { .string = string },
-        .isOwned = true
+        .value = { .string = StarfaitString_create(string) }
     };
+}
+
+static inline RValue RValue_createStringFromCStringCopyAndFree(char* string) {
+    RValue rvalue = RValue_createStringFromCStringCopy(string);
+    free(string);
+    return rvalue;
 }
 
 static inline RValue RValue_createInt32(int32_t value) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_INT32,
-        .value = { .int32 = value },
-        .isOwned = false
+        .value = { .int32 = value }
     };
 }
 
 static inline RValue RValue_createBoolean(bool value) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_BOOLEAN,
-        .value = { .boolean = value },
-        .isOwned = false
+        .value = { .boolean = value }
     };
 }
 
 static inline RValue RValue_createReal(int32_t value) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_REAL,
-        .value = { .real = value },
-        .isOwned = false
+        .value = { .real = value }
     };
 }
 
@@ -73,7 +72,7 @@ static inline RValue RValue_createReal(int32_t value) {
 static inline char* RValue_toString(RValue rvalue) {
     switch (rvalue.type) {
         case RVALUE_DATA_TYPE_UNDEFINED: return strdup("undefined");
-        case RVALUE_DATA_TYPE_STRING: return strdup(rvalue.value.string);
+        case RVALUE_DATA_TYPE_STRING: return strdup(StarfaitString_toCharArrayView(rvalue.value.string));
         case RVALUE_DATA_TYPE_INT32: {
             char buf[12];
             snprintf(buf, sizeof(buf), "%d", rvalue.value.int32);
@@ -116,6 +115,27 @@ static inline bool RValue_getAsBoolean(RValue rvalue) {
         case RVALUE_DATA_TYPE_INT32: TODO();
         case RVALUE_DATA_TYPE_BOOLEAN: return rvalue.value.boolean;
         case RVALUE_DATA_TYPE_REAL: TODO();
+    }
+    abort();
+}
+
+static inline void RValue_free(RValue rvalue) {
+    switch (rvalue.type) {
+        case RVALUE_DATA_TYPE_UNDEFINED: break;
+        case RVALUE_DATA_TYPE_STRING: StarfaitString_free(rvalue.value.string);
+        case RVALUE_DATA_TYPE_INT32: break;
+        case RVALUE_DATA_TYPE_BOOLEAN: break;
+        case RVALUE_DATA_TYPE_REAL: break;
+    }
+}
+
+static inline RValue RValue_createCopy(RValue rvalue) {
+    switch (rvalue.type) {
+        case RVALUE_DATA_TYPE_UNDEFINED: return RValue_createUndefined();
+        case RVALUE_DATA_TYPE_STRING: return RValue_createStringFromCStringCopy(StarfaitString_toCharArrayView(rvalue.value.string));
+        case RVALUE_DATA_TYPE_INT32: return RValue_createInt32(rvalue.value.int32);
+        case RVALUE_DATA_TYPE_BOOLEAN: return RValue_createBoolean(rvalue.value.boolean);
+        case RVALUE_DATA_TYPE_REAL: return RValue_createReal(rvalue.value.real);
     }
     abort();
 }

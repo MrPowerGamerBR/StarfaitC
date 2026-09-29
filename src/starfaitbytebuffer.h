@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "wad/stringpointer.h"
+#include "wad/texturepageentrypointer.h"
 #include "arraylist_int32.h"
 
 typedef struct {
@@ -24,6 +25,7 @@ void StarfaitByteBuffer_writeUint32LE(StarfaitByteBuffer* buffer, uint32_t value
 void StarfaitByteBuffer_writeInt32LE(StarfaitByteBuffer* buffer, int32_t value);
 uint64_t StarfaitByteBuffer_readUint64LE(StarfaitByteBuffer* buffer);
 StringPointer StarfaitByteBuffer_readStringPointer(StarfaitByteBuffer* buffer);
+TexturePageEntryPointer StarfaitByteBuffer_readTexturePageEntryPointer(StarfaitByteBuffer* buffer);
 void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, int32_t* outCount, int32_t** outAddresses);
 Int32ArrayList* StarfaitByteBuffer_readAddressesAsArrayList(StarfaitByteBuffer* buffer);
 uint8_t* StarfaitByteBuffer_readBytes(StarfaitByteBuffer* buffer, int32_t count);

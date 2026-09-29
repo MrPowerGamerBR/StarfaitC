@@ -101,6 +101,20 @@ arrayListVariants = [
         "type": "Path",
         "includes": ["\"wad/path.h\""],
         "numeric": False
+    },
+    {
+        "file": "arraylist_optnconstant",
+        "name": "OptnConstantArrayList",
+        "type": "OptnConstant",
+        "includes": ["\"wad/optnconstant.h\""],
+        "numeric": False
+    },
+    {
+        "file": "arraylist_background",
+        "name": "BackgroundArrayList",
+        "type": "Background",
+        "includes": ["\"wad/background.h\""],
+        "numeric": False
     }
 ]
 

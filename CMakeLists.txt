@@ -23,6 +23,8 @@ set(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_string.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_pathpoint.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_path.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_optnconstant.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_background.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/hashmap_int32_rvalue.h
 )
 

@@ -75,6 +75,10 @@ StringPointer StarfaitByteBuffer_readStringPointer(StarfaitByteBuffer* buffer) {
     return (StringPointer){.value = StarfaitByteBuffer_readInt32LE(buffer)};
 }
 
+TexturePageEntryPointer StarfaitByteBuffer_readTexturePageEntryPointer(StarfaitByteBuffer* buffer) {
+    return (TexturePageEntryPointer){.value = StarfaitByteBuffer_readInt32LE(buffer)};
+}
+
 void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, int32_t* outCount, int32_t** outAddresses) {
     int32_t addressesCount = StarfaitByteBuffer_readInt32LE(buffer);
     *outCount = addressesCount;

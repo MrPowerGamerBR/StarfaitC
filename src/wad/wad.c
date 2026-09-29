@@ -11,6 +11,7 @@
 #include "chunks/vari_chunk.h"
 #include "../charutils.h"
 #include "chunks/optn_chunk.h"
+#include "chunks/bgnd_chunk.h"
 
 GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
     char* header = StarfaitByteBuffer_readChars(buffer, 4);
@@ -32,6 +33,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
     SCPTChunk scpt;
     PATHChunk path;
     OPTNChunk optn;
+    BGNDChunk bgnd;
 
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         char* chunkName = StarfaitByteBuffer_readChars(buffer, 4);
@@ -48,6 +50,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         if (CharUtils_charEquals(chunkName, "SCPT")) scpt = SCPTChunk_parse(buffer);
         if (CharUtils_charEquals(chunkName, "PATH")) path = PATHChunk_parse(buffer);
         if (CharUtils_charEquals(chunkName, "OPTN")) optn = OPTNChunk_parse(buffer);
+        if (CharUtils_charEquals(chunkName, "BGND")) bgnd = BGNDChunk_parse(buffer);
 
         StarfaitByteBuffer_jumpTo(buffer, currentPosition + chunkSize);
     }
@@ -60,6 +63,7 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
         .func = func,
         .scpt = scpt,
         .path = path,
-        .optn = optn
+        .optn = optn,
+        .bgnd = bgnd
     };
 }

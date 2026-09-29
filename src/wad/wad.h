@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 
+#include "chunks/bgnd_chunk.h"
 #include "chunks/code_chunk.h"
 #include "chunks/func_chunk.h"
 #include "chunks/gen8_chunk.h"
@@ -19,6 +20,7 @@ typedef struct {
     SCPTChunk scpt;
     PATHChunk path;
     OPTNChunk optn;
+    BGNDChunk bgnd;
 } GameWAD;
 
 GameWAD GameWAD_parse(StarfaitByteBuffer* buffer);

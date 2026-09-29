@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 #include "../utils.h"
-#include "../arraylist.h"
 #include "../charutils.h"
 
 GEN8 GEN8_parse(StarfaitByteBuffer* buffer) {

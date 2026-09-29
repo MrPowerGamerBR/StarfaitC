@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "arraylist_generic_types.h"
 #include "wad/stringpointer.h"
+#include "arraylist_uint32.h"
 
 typedef struct {
     uint8_t* data;

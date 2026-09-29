@@ -1,6 +1,7 @@
 #pragma once
 #include "../wad/code.h"
 #include "../wad/wad.h"
+#include "../wad/variable.h"
 #include "vm_stack.h"
 #include "callframe.h"
 
@@ -14,6 +15,12 @@ typedef struct {
 
 #define ARRAY_LIST_NAME BuiltinFunctionArrayList
 #define ARRAY_LIST_TYPE BuiltinFunction
+#include "../arraylist.h"
+#undef ARRAY_LIST_NAME
+#undef ARRAY_LIST_TYPE
+
+#define ARRAY_LIST_NAME VariableArrayList
+#define ARRAY_LIST_TYPE Variable
 #include "../arraylist.h"
 #undef ARRAY_LIST_NAME
 #undef ARRAY_LIST_TYPE

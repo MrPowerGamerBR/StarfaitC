@@ -25,9 +25,9 @@ VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize) {
     repeat(entryCount, i) {
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
         uint32_t instanceType = StarfaitByteBuffer_readUint32LE(buffer);
-        uint32_t varId = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t varId = StarfaitByteBuffer_readInt32LE(buffer);
         uint32_t occurrenceCount = StarfaitByteBuffer_readUint32LE(buffer);
-        uint32_t firstAddress = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t firstAddress = StarfaitByteBuffer_readInt32LE(buffer);
 
         variables[i].name = name;
         variables[i].instanceType = instanceType;

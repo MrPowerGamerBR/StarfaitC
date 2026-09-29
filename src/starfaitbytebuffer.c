@@ -35,6 +35,10 @@ uint32_t StarfaitByteBuffer_readUint32LE(StarfaitByteBuffer* buffer) {
     return v;
 }
 
+int32_t StarfaitByteBuffer_readInt32LE(StarfaitByteBuffer* buffer) {
+    return (int32_t) StarfaitByteBuffer_readUint32LE(buffer);
+}
+
 void StarfaitByteBuffer_writeUint32LE(StarfaitByteBuffer* buffer, uint32_t value) {
     // YOU NEED TO EXPLICITLY ADD THOSE DAMN () BECAUSE IF YOU DON'T, THE VALUE WILL BE CASTED BEFORE THE BITWISE OPERATION!!!
     buffer->data[buffer->position++] = (uint8_t) (value);

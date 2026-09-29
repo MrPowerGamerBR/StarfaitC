@@ -3,7 +3,7 @@
 
 typedef struct {
     StringPointer name;
-    uint32_t occurenceCount;
+    uint32_t occurrenceCount;
     uint32_t firstAddress;
 } Function;
 

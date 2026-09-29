@@ -15,6 +15,9 @@
 #include "vm_builtins.h"
 #include "../charutils.h"
 
+// TODO: Increase this whenever we ACTUALLY implement hashmaps
+constexpr uint32_t REGULAR_VARIABLES_BASE = 16; // 100'000
+
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
@@ -162,21 +165,70 @@ void handlePopz(StarfaitVM* vm) {
  * The remapper walks through all VARI variables and remaps the delta offsets to be VARI indices.
  */
 void remapReferences(StarfaitVM* vm) {
-    // For now only functions will be remapped
+    // I'm not sure WHY the YoYo Runner does this!!
     StarfaitByteBuffer buffer = StarfaitByteBuffer_create(vm->wad->code.bytecode, vm->wad->code.bytecodeSize);
+    VariableArrayList* allocatedBuiltinVariables = VariableArrayList_create(0);
+    VariableArrayList* allocatedRegularVariables = VariableArrayList_create(0);
+
+    repeat(vm->wad->vari.variableCount, i) {
+        Variable variable = vm->wad->vari.variables[i];
+        if (variable.firstAddress != -1) {
+            // Here's the thing:
+            // For builtin variables, we store it sequentially, starting from 0
+            // For regular variables, we store it sequentially, starting from REGULAR_VARIABLES_BASE
+            // This way we can differentiate directly on the operand itself, and we can store the handlers densely
+            int32_t variableHandlerId = 0;
+            if (variable.varId == -6) {
+                size_t index = allocatedBuiltinVariables->size;
+                VariableArrayList_add(allocatedBuiltinVariables, variable);
+                variableHandlerId = (int32_t) index;
+            } else {
+                size_t index = allocatedRegularVariables->size;
+                VariableArrayList_add(allocatedRegularVariables, variable);
+                variableHandlerId = (int32_t) (index + REGULAR_VARIABLES_BASE);
+            }
+
+            // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
+            StarfaitByteBuffer_jumpTo(&buffer, (variable.firstAddress - vm->wad->code.postAddressPosition) + 4);
+
+            uint8_t nextDelta = 0;
+
+            repeat(variable.occurrenceCount, j) {
+                printf("Processing %d with variable handler ID %d (delta is %d)\n", j, variableHandlerId, nextDelta);
+                StarfaitByteBuffer_skip(&buffer, nextDelta);
+
+                VariableReferenceOperand operand = {.value = StarfaitByteBuffer_readUint32LE(&buffer)};
+                nextDelta = VariableReferenceOperand_delta(operand);
+
+                // We need to rewind because we want to rewrite the operand
+                StarfaitByteBuffer_rewind(&buffer, 4);
+
+                // Write the new variable index!
+                // First value: hasArrayIndex
+                // Second value: The rest:tm:
+                StarfaitByteBuffer_writeUint32LE(&buffer, (operand.value & 0xF0000000) | (variableHandlerId & 0x0FFFFFFF));
+
+                // We rewind again because if we don't do that the delta will not align
+                StarfaitByteBuffer_rewind(&buffer, 4);
+                // And that's all that there's to it!
+            }
+        }
+    }
 
     repeat(vm->wad->func.functionCount, i) {
         Function function = vm->wad->func.functions[i];
+
         // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
         StarfaitByteBuffer_jumpTo(&buffer, (function.firstAddress - vm->wad->code.postAddressPosition) + 4);
 
         uint8_t nextDelta = 0;
 
-        repeat(function.occurenceCount, j) {
+        repeat(function.occurrenceCount, j) {
             printf("Processing %d\n", j);
             StarfaitByteBuffer_skip(&buffer, nextDelta);
 
             FunctionReferenceOperand operand = {.value = StarfaitByteBuffer_readUint32LE(&buffer)};
+            nextDelta = FunctionReferenceOperand_delta(operand);
 
             // We need to rewind because we want to rewrite the operand
             StarfaitByteBuffer_rewind(&buffer, 4);
@@ -184,8 +236,9 @@ void remapReferences(StarfaitVM* vm) {
             // Write the new function index!
             StarfaitByteBuffer_writeUint32LE(&buffer, i); // For functions we don't need to "save" the nibble (w00t!)
 
+            // We rewind again because if we don't do that the delta will not align
+            StarfaitByteBuffer_rewind(&buffer, 4);
             // And that's all that there's to it!
-            nextDelta = FunctionReferenceOperand_delta(operand);
         }
     }
 }

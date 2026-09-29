@@ -11,6 +11,7 @@
 #include "../utils.h"
 #include "rvalue.h"
 #include "vm_builtins.h"
+#include "../charutils.h"
 
 void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
@@ -56,21 +57,20 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t extra) {
 
     printf("Function Index is %d\n", functionIndex);
 
-    if (functionIndex == 0) {
-        printf("I'm running funcIndex 0!\n");
-        Function function = vm->wad->func.functions[functionIndex];
-        printf("Name is %s\n", STRG_getString(&vm->wad->strg, function.name));
+    Function function = vm->wad->func.functions[functionIndex];
+    char* functionName = STRG_getString(&vm->wad->strg, function.name);
 
-        char* output = RValue_toString(arguments[0]);
-
-        printf("Game: %s\n", output);
-
-        free(output);
-
-        VMStack_push(&vm->stack, RValue_createUndefined());
-    } else {
-        abort();
+    // TODO: This is BAD, we NEED to use HashMaps for this later
+    repeat(vm->builtinFunctionsArrayList->size, i) {
+        BuiltinFunction builtinFunction = vm->builtinFunctionsArrayList->elements[i];
+        if (CharUtils_charEquals(builtinFunction.name, functionName)) {
+            RValue result = builtinFunction.builtinFunction(vm, extra, arguments);
+            VMStack_push(&vm->stack, result);
+            return;
+        }
     }
+
+    abort();
 }
 
 void handlePopz(StarfaitVM* vm) {
@@ -103,7 +103,7 @@ void remapReferences(StarfaitVM* vm) {
             StarfaitByteBuffer_rewind(&buffer, 4);
 
             // Write the new function index!
-            StarfaitByteBuffer_writeUint32LE(&buffer, 0); // For functions we don't need to "save" the nibble (w00t!)
+            StarfaitByteBuffer_writeUint32LE(&buffer, i); // For functions we don't need to "save" the nibble (w00t!)
 
             // And that's all that there's to it!
             nextDelta = FunctionReferenceOperand_delta(operand);
@@ -113,6 +113,9 @@ void remapReferences(StarfaitVM* vm) {
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
+    BuiltinFunctionArrayList* builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
+    vm->builtinFunctionsArrayList = builtinFunctionsArrayList;
+
     vm->wad = wad;
     VMBuiltins_registerBuiltins(vm);
     remapReferences(vm);

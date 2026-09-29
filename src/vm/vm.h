@@ -3,10 +3,25 @@
 #include "../wad/wad.h"
 #include "vm_stack.h"
 
+// Forward Declerations
+typedef struct StarfaitVM StarfaitVM;
+
 typedef struct {
+    const char* name;
+    RValue (*builtinFunction)(StarfaitVM*, uint32_t, RValue*);
+} BuiltinFunction;
+
+#define ARRAY_LIST_NAME BuiltinFunctionArrayList
+#define ARRAY_LIST_TYPE BuiltinFunction
+#include "../arraylist.h"
+#undef ARRAY_LIST_NAME
+#undef ARRAY_LIST_TYPE
+
+struct StarfaitVM {
     GameWAD* wad;
     VMStack stack;
-} StarfaitVM;
+    BuiltinFunctionArrayList* builtinFunctionsArrayList;
+};
 
 StarfaitVM* StarfaitVM_create(GameWAD* wad);
 

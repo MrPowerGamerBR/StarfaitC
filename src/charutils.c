@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-bool CharUtils_charEquals(char* s1, char* s2) {
+bool CharUtils_charEquals(const char* s1, const char* s2) {
     return strcmp(s1, s2) == 0;
 }
 

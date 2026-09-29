@@ -18,21 +18,35 @@
 
 constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
 
-void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
+void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
+        // While there's already PUSH_IMMEDIATE for INT16, it seems that GameMaker also does use handlePush with INT16 sometimes, in this case the value is the "extra" field
+        case DATA_TYPE_INT16: {
+            VMStack_push(&vm->stack, RValue_createInt32(extra));
+            break;
+        }
         case DATA_TYPE_DOUBLE: TODO();
         case DATA_TYPE_FLOAT: TODO();
         case DATA_TYPE_INT32: TODO();
         case DATA_TYPE_INT64: TODO();
         case DATA_TYPE_BOOLEAN: TODO();
-        case DATA_TYPE_VARIABLE: TODO();
+        case DATA_TYPE_VARIABLE: {
+            VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
+
+            int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
+            int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : 0;
+
+            CallFrame* callFrame = StarfaitVM_getCurrentCallFrame(vm);
+            RValue localVariable = VariableContainer_getVariable(&callFrame->container, VariableReferenceOperand_variableIndex(operand));
+            VMStack_push(&vm->stack, RValue_createCopy(localVariable));
+            break;
+        };
         case DATA_TYPE_STRING:
             uint32_t stringIndex = StarfaitByteBuffer_readUint32LE(buffer);
             VMStack_push(&vm->stack, RValue_createStringFromCStringCopy(vm->wad->strg.strings[stringIndex]->string));
             break;
-        case DATA_TYPE_INT16: TODO();
     }
 }
 
@@ -222,7 +236,7 @@ void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint1
         return;
     }
 
-    VMStack_push(&vm->stack, RValue_createReal(left.value.int32 + right.value.int32));
+    VMStack_push(&vm->stack, RValue_createReal(RValue_getAsReal(left) + RValue_getAsReal(right)));
 }
 
 void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t type1, uint16_t type2) {
@@ -391,7 +405,7 @@ void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
 
         switch (opcode) {
             case OP_PUSH: {
-                handlePush(vm, buffer, type1);
+                handlePush(vm, buffer, type1, extra);
                 break;
             }
             case OP_PUSH_LOCAL: {

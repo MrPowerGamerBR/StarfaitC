@@ -5,6 +5,6 @@
 
 typedef struct {
     StringPointer name;
-    uint32_t occurrenceCount;
-    uint32_t firstAddress;
+    int32_t occurrenceCount;
+    int32_t firstAddress;
 } Function;

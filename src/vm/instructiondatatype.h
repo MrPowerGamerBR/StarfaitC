@@ -17,7 +17,7 @@ typedef enum : uint8_t {
     INSTRUCTION_DATA_TYPES(MAKE_ENUM)
 } InstructionDataType;
 
-static inline InstructionDataType InstructionDataType_byId(uint8_t dataType) {
+static inline InstructionDataType InstructionDataType_byId(int32_t dataType) {
     switch (dataType) {
 #define X_CASE(name, val) case val: return val;
         INSTRUCTION_DATA_TYPES(X_CASE)

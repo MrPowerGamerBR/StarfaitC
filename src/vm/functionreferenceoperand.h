@@ -5,5 +5,5 @@ typedef struct {
     uint32_t value;
 } FunctionReferenceOperand;
 
-uint32_t FunctionReferenceOperand_delta(FunctionReferenceOperand operand);
-uint32_t FunctionReferenceOperand_functionIndex(FunctionReferenceOperand operand);
+int32_t FunctionReferenceOperand_delta(FunctionReferenceOperand operand);
+int32_t FunctionReferenceOperand_functionIndex(FunctionReferenceOperand operand);

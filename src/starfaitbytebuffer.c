@@ -7,8 +7,8 @@
 #include "utils.h"
 #include "wad/wad.h"
 
-StarfaitByteBuffer StarfaitByteBuffer_create(uint8_t* data, size_t size) {
-    return (StarfaitByteBuffer) {
+StarfaitByteBuffer StarfaitByteBuffer_create(uint8_t* data, int32_t size) {
+    return (StarfaitByteBuffer){
         .data = data,
         .size = size,
         .position = 0
@@ -26,7 +26,7 @@ bool StarfaitByteBuffer_readUint8Boolean(StarfaitByteBuffer* buffer) {
 uint16_t StarfaitByteBuffer_readUint16LE(StarfaitByteBuffer* buffer) {
     const uint32_t v = (uint32_t) buffer->data[buffer->position] | ((uint32_t) buffer->data[buffer->position + 1] << 8);
     buffer->position += 2;
-    return v;
+    return (uint16_t) v;
 }
 
 uint32_t StarfaitByteBuffer_readUint32LE(StarfaitByteBuffer* buffer) {
@@ -58,6 +58,10 @@ void StarfaitByteBuffer_writeUint32LE(StarfaitByteBuffer* buffer, uint32_t value
     buffer->data[buffer->position++] = (uint8_t) (value >> 24);
 }
 
+void StarfaitByteBuffer_writeInt32LE(StarfaitByteBuffer* buffer, int32_t value) {
+    StarfaitByteBuffer_writeUint32LE(buffer, (uint32_t) value);
+}
+
 uint64_t StarfaitByteBuffer_readUint64LE(StarfaitByteBuffer* buffer) {
     uint64_t v = 0;
     for (int i = 7; i >= 0; i--) {
@@ -68,60 +72,60 @@ uint64_t StarfaitByteBuffer_readUint64LE(StarfaitByteBuffer* buffer) {
 }
 
 StringPointer StarfaitByteBuffer_readStringPointer(StarfaitByteBuffer* buffer) {
-    return (StringPointer) { .value = StarfaitByteBuffer_readUint32LE(buffer) };
+    return (StringPointer){.value = StarfaitByteBuffer_readInt32LE(buffer)};
 }
 
-void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, size_t* outCount, uint32_t** outAddresses) {
-    uint32_t addressesCount = StarfaitByteBuffer_readUint32LE(buffer);
+void StarfaitByteBuffer_readAddresses(StarfaitByteBuffer* buffer, int32_t* outCount, int32_t** outAddresses) {
+    int32_t addressesCount = StarfaitByteBuffer_readInt32LE(buffer);
     *outCount = addressesCount;
-    uint32_t* addresses = calloc(addressesCount, sizeof(uint32_t));
+    int32_t* addresses = calloc((size_t) addressesCount, sizeof(int32_t));
 
     repeat(addressesCount, i) {
-        addresses[i] = StarfaitByteBuffer_readUint32LE(buffer);
+        addresses[i] = StarfaitByteBuffer_readInt32LE(buffer);
     }
 
     *outAddresses = addresses;
 }
 
-Uint32ArrayList* StarfaitByteBuffer_readAddressesAsArrayList(StarfaitByteBuffer* buffer) {
-    size_t count;
-    uint32_t* addresses;
+Int32ArrayList* StarfaitByteBuffer_readAddressesAsArrayList(StarfaitByteBuffer* buffer) {
+    int32_t count;
+    int32_t* addresses;
 
     StarfaitByteBuffer_readAddresses(buffer, &count, &addresses);
 
-    Uint32ArrayList* arrayList = Uint32ArrayList_create(count);
+    Int32ArrayList* arrayList = Int32ArrayList_create(count);
 
     repeat(count, i) {
-        Uint32ArrayList_add(arrayList, addresses[i]);
+        Int32ArrayList_add(arrayList, addresses[i]);
     }
 
     return arrayList;
 }
 
-uint8_t* StarfaitByteBuffer_readBytes(StarfaitByteBuffer* buffer, size_t count) {
-    uint8_t* data = malloc(count);
-    memcpy(data, buffer->data + buffer->position, count);
+uint8_t* StarfaitByteBuffer_readBytes(StarfaitByteBuffer* buffer, int32_t count) {
+    uint8_t* data = malloc((size_t) count);
+    memcpy(data, buffer->data + buffer->position, (size_t) count);
     buffer->position += count;
     return data;
 }
 
-char* StarfaitByteBuffer_readChars(StarfaitByteBuffer* buffer, size_t count) {
+char* StarfaitByteBuffer_readChars(StarfaitByteBuffer* buffer, int32_t count) {
     // All of this just so that the char* ends with a \0 smh
-    char* chars = calloc(count + 1, sizeof(char));
+    char* chars = calloc((size_t) (count + 1), sizeof(char));
     uint8_t* output = StarfaitByteBuffer_readBytes(buffer, count);
-    memcpy(chars, output, count);
+    memcpy(chars, output, (size_t) count);
     return chars;
 }
 
-void StarfaitByteBuffer_skip(StarfaitByteBuffer* buffer, size_t count) {
+void StarfaitByteBuffer_skip(StarfaitByteBuffer* buffer, int32_t count) {
     buffer->position += count;
 }
 
-void StarfaitByteBuffer_rewind(StarfaitByteBuffer* buffer, size_t count) {
+void StarfaitByteBuffer_rewind(StarfaitByteBuffer* buffer, int32_t count) {
     buffer->position -= count;
 }
 
-void StarfaitByteBuffer_jumpTo(StarfaitByteBuffer* buffer, size_t newPosition) {
+void StarfaitByteBuffer_jumpTo(StarfaitByteBuffer* buffer, int32_t newPosition) {
     buffer->position = newPosition;
 }
 

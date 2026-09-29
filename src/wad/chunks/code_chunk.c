@@ -9,8 +9,8 @@
 #include "../../utils.h"
 
 CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer) {
-    Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
-    size_t postAddressPosition = buffer->position;
+    Int32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
+    int32_t postAddressPosition = buffer->position;
     CodeEntryArrayList* codeEntries = CodeEntryArrayList_create(addresses->size);
 
     // This may happen if it is a YYC game OR if it is just a game without any code
@@ -23,23 +23,23 @@ CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer) {
         };
     }
 
-    uint32_t minAddressTarget = Utils_minFromArray(addresses->elements, addresses->size);
+    int32_t minAddressTarget = Int32ArrayList_min(addresses);
 
     // We want to read ALL the bytecode at once!
-    size_t bytecodeSize = minAddressTarget - postAddressPosition;
+    int32_t bytecodeSize = minAddressTarget - postAddressPosition;
     uint8_t* bytecode = StarfaitByteBuffer_readBytes(buffer, bytecodeSize);
 
-    repeat(addresses->size, i) {
-        uint32_t address = addresses->elements[i];
+    Int32ArrayList_forEach(addresses, _address, i) {
+        int32_t address = *_address;
         StarfaitByteBuffer_jumpTo(buffer, address);
 
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
-        uint32_t length = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t length = StarfaitByteBuffer_readInt32LE(buffer);
         uint16_t localsCount = StarfaitByteBuffer_readUint16LE(buffer);
         uint16_t argumentsCount = StarfaitByteBuffer_readUint16LE(buffer); // TODO: Is this even used?
-        size_t bytecodeRelativeOffsetFieldPosition = buffer->position;
-        uint32_t bytecodeRelativeOffset = StarfaitByteBuffer_readUint32LE(buffer);
-        uint32_t offset = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t bytecodeRelativeOffsetFieldPosition = buffer->position;
+        int32_t bytecodeRelativeOffset = StarfaitByteBuffer_readInt32LE(buffer);
+        int32_t offset = StarfaitByteBuffer_readInt32LE(buffer);
 
         CodeEntryArrayList_add(
             codeEntries,
@@ -62,6 +62,6 @@ CODEChunk CODEChunk_parse(StarfaitByteBuffer* buffer) {
         .bytecode = bytecode
     };
 
-    Uint32ArrayList_free(addresses);
+    Int32ArrayList_free(addresses);
     return code;
 }

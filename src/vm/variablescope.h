@@ -12,7 +12,7 @@ typedef enum : int8_t {
     VARIABLE_SCOPES(MAKE_ENUM)
 } VariableScope;
 
-static inline VariableScope VariableScope_byId(int8_t variableScope) {
+static inline VariableScope VariableScope_byId(int32_t variableScope) {
     switch (variableScope) {
 #define X_CASE(name, val) case val: return val;
         VARIABLE_SCOPES(X_CASE)

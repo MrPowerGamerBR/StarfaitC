@@ -7,11 +7,11 @@
 constexpr size_t MAX_STACK_SIZE = 1024;
 
 typedef struct {
-    uint32_t top;
+    int32_t top;
     RValue stack[MAX_STACK_SIZE];
 } VMStack;
 
 void VMStack_push(VMStack* stack, RValue value);
 RValue VMStack_pop(VMStack* stack);
 RValue VMStack_peek(VMStack* stack);
-RValue VMStack_peekAt(VMStack* stack, uint32_t index);
+RValue VMStack_peekAt(VMStack* stack, int32_t index);

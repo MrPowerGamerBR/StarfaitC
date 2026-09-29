@@ -11,10 +11,10 @@
 #include "../../utils.h"
 
 SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer) {
-    Uint32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
+    Int32ArrayList* addresses = StarfaitByteBuffer_readAddressesAsArrayList(buffer);
     ScriptArrayList* scripts = ScriptArrayList_create(addresses->size);
 
-    Uint32ArrayList_forEach(addresses, address, i) {
+    Int32ArrayList_forEach(addresses, address, i) {
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
         int32_t codeIndex = StarfaitByteBuffer_readInt32LE(buffer);
 
@@ -31,7 +31,7 @@ SCPTChunk SCPTChunk_parse(StarfaitByteBuffer* buffer) {
         .scripts = scripts
     };
 
-    Uint32ArrayList_free(addresses);
+    Int32ArrayList_free(addresses);
 
     return scpt;
 }

@@ -7,13 +7,13 @@
 #include "../../utils.h"
 
 FUNCChunk FUNCChunk_parse(StarfaitByteBuffer* buffer) {
-    size_t count = StarfaitByteBuffer_readUint32LE(buffer);
+    int32_t count = StarfaitByteBuffer_readInt32LE(buffer);
     FunctionArrayList* functions = FunctionArrayList_create(count);
 
     repeat(count, i) {
         StringPointer name = StarfaitByteBuffer_readStringPointer(buffer);
-        uint32_t occurrenceCount = StarfaitByteBuffer_readUint32LE(buffer);
-        uint32_t firstAddress = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t occurrenceCount = StarfaitByteBuffer_readInt32LE(buffer);
+        int32_t firstAddress = StarfaitByteBuffer_readInt32LE(buffer);
 
         FunctionArrayList_add(
             functions,

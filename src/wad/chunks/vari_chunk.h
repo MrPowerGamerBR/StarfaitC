@@ -5,10 +5,10 @@
 #include "../../starfaitbytebuffer.h"
 
 typedef struct {
-    uint32_t globalVariables;
-    uint32_t instanceVariables;
-    uint32_t localVariables;
+    int32_t globalVariables;
+    int32_t instanceVariables;
+    int32_t localVariables;
     VariableArrayList* variables;
 } VARIChunk;
 
-VARIChunk VARIChunk_parse(StarfaitByteBuffer* buffer, size_t chunkSize);
+VARIChunk VARIChunk_parse(StarfaitByteBuffer* buffer, int32_t chunkSize);

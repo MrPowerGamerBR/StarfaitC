@@ -20,7 +20,8 @@ int main() {
 
     // Get file size
     fseek(file, 0, SEEK_END);
-    long size = ftell(file);
+    long status = ftell(file);
+    size_t size = (size_t) status;
     rewind(file);
 
     // Read the whole file into memory
@@ -33,7 +34,7 @@ int main() {
     }
     fclose(file);
 
-    StarfaitByteBuffer byteBuffer = StarfaitByteBuffer_create(buf, size);
+    StarfaitByteBuffer byteBuffer = StarfaitByteBuffer_create(buf, (int32_t) size);
     GameWAD gameWAD = GameWAD_parse(&byteBuffer);
 
     StarfaitVM* vm = StarfaitVM_create(&gameWAD);

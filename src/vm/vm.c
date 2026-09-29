@@ -17,7 +17,7 @@
 #include "../starfaitstring.h"
 #include "arraylist_string.h"
 
-constexpr uint32_t REGULAR_VARIABLES_BASE = 100'000;
+constexpr int32_t REGULAR_VARIABLES_BASE = 100'000;
 
 CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
     return CallFrameArrayList_last(vm->callFrameStack);
@@ -75,7 +75,7 @@ static void printVariables(StarfaitVM* vm, VariableContainer* container) {
     }
 }
 
-static void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
+static void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
@@ -109,7 +109,7 @@ static void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type
     }
 }
 
-static void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
+static void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
@@ -133,13 +133,13 @@ static void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t
     }
 }
 
-static void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
+static void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1) {
     // Pushes a builtin variable to the stack
     // handlePushBuiltin type1 is always "VARIABLE"
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
-    VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readInt32LE(buffer)};
-    uint32_t varId = VariableReferenceOperand_variableIndex(operand);
+    VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
+    int32_t varId = VariableReferenceOperand_variableIndex(operand);
 
     printf("varID: %d\n", varId);
 
@@ -150,11 +150,11 @@ static void handlePushBuiltin(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32
     VMStack_push(&vm->stack, result);
 }
 
-static void handlePushImmediate(StarfaitVM* vm, int16_t extra) {
+static void handlePushImmediate(StarfaitVM* vm, int32_t extra) {
     VMStack_push(&vm->stack, RValue_createInt32(extra));
 }
 
-static void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
+static void handleConv(StarfaitVM* vm, int32_t type1, int32_t type2) {
     // type1 is the source type, type2 is the destination type
     InstructionDataType sourceType = InstructionDataType_byId(type1);
     InstructionDataType destinationType = InstructionDataType_byId(type2);
@@ -182,10 +182,10 @@ static void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
 
 static void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
     FunctionReferenceOperand operand = (FunctionReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
-    uint32_t functionIndex = FunctionReferenceOperand_functionIndex(operand);
+    int32_t functionIndex = FunctionReferenceOperand_functionIndex(operand);
 
     // extra = parameter count
-    RValue* arguments = calloc(extra, sizeof(RValue));
+    RValue* arguments = calloc((size_t) extra, sizeof(RValue));
     repeat(extra, i) {
         arguments[i] = VMStack_pop(&vm->stack);
     }
@@ -231,7 +231,7 @@ static void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra
     abort();
 }
 
-static void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16_t extra) {
+static void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
@@ -243,7 +243,7 @@ static void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1
         case DATA_TYPE_VARIABLE: {
             VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
 
-            uint32_t varId = VariableReferenceOperand_variableIndex(operand);
+            int32_t varId = VariableReferenceOperand_variableIndex(operand);
             int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
             int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
 
@@ -281,7 +281,7 @@ static void handlePopz(StarfaitVM* vm) {
     VMStack_pop(&vm->stack);
 }
 
-static void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint16_t type2) {
+static void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t type2) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
     InstructionDataType type2DataType = InstructionDataType_byId(type2);
 
@@ -306,7 +306,7 @@ static void handleAdd(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1
     VMStack_push(&vm->stack, RValue_createReal(RValue_getAsReal(left) + RValue_getAsReal(right)));
 }
 
-static void handleSub(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, uint16_t type2) {
+static void handleSub(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t type2) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
     InstructionDataType type2DataType = InstructionDataType_byId(type2);
 
@@ -317,7 +317,7 @@ static void handleSub(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1
     VMStack_push(&vm->stack, RValue_createReal(RValue_getAsReal(left) - RValue_getAsReal(right)));
 }
 
-static void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, uint16_t type1, uint16_t type2) {
+static void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, int32_t type1, int32_t type2) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
     InstructionDataType type2DataType = InstructionDataType_byId(type2);
 
@@ -357,12 +357,12 @@ static void handleCmp(StarfaitVM* vm, StarfaitByteBuffer* buffer, CmpOp cmpOp, u
     }
 }
 
-static void handleB([[maybe_unused]] StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
+static void handleB([[maybe_unused]] StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t branchOffset) {
     // Branches are in relation to the start of the instruction
     buffer->position += (branchOffset - 4);
 }
 
-static void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
+static void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t branchOffset) {
     bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
     if (result) {
         // Branches are in relation to the start of the instruction
@@ -370,7 +370,7 @@ static void handleBT(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchO
     }
 }
 
-static void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchOffset) {
+static void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t branchOffset) {
     bool result = RValue_getAsBoolean(VMStack_pop(&vm->stack));
     if (!result) {
         // Branches are in relation to the start of the instruction
@@ -378,7 +378,7 @@ static void handleBF(StarfaitVM* vm, StarfaitByteBuffer* buffer, int16_t branchO
     }
 }
 
-static void handleDup(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16_t extra) {
+static void handleDup(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t type1, int32_t extra) {
     // In the YoYo Runner, the type1 would've been used to figure out how many bytes to be copied from the stack
     // Because all of our types are tagged RValues, we don't need to rely on it (yay)
     // extra = how many additional elements will be copied from the stack, that is...
@@ -413,19 +413,19 @@ static void remapReferences(StarfaitVM* vm) {
             // This way we can differentiate directly on the operand itself, and we can store the handlers densely
             int32_t variableHandlerId = 0;
             if (variable->varId == -6) {
-                size_t index = allocatedBuiltinVariables->size;
+                int32_t index = allocatedBuiltinVariables->size;
                 VariableArrayList_add(allocatedBuiltinVariables, *variable);
-                variableHandlerId = (int32_t) index;
+                variableHandlerId = index;
             } else {
-                size_t index = allocatedRegularVariables->size;
+                int32_t index = allocatedRegularVariables->size;
                 VariableArrayList_add(allocatedRegularVariables, *variable);
-                variableHandlerId = (int32_t) (index + REGULAR_VARIABLES_BASE);
+                variableHandlerId = (index + REGULAR_VARIABLES_BASE);
             }
 
             // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
             StarfaitByteBuffer_jumpTo(&buffer, (variable->firstAddress - vm->wad->code.postAddressPosition) + 4);
 
-            uint8_t nextDelta = 0;
+            int32_t nextDelta = 0;
 
             repeat(variable->occurrenceCount, j) {
                 printf("Processing %d (%s) with variable handler ID %d (delta is %d)\n", j, STRGChunk_getString(&vm->wad->strg, variable->name), variableHandlerId, nextDelta);
@@ -453,7 +453,7 @@ static void remapReferences(StarfaitVM* vm) {
         // This points to the INSTRUCTION address, NOT the operand address, which is why we do +4
         StarfaitByteBuffer_jumpTo(&buffer, (function->firstAddress - vm->wad->code.postAddressPosition) + 4);
 
-        uint8_t nextDelta = 0;
+        int32_t nextDelta = 0;
 
         repeat(function->occurrenceCount, j) {
             printf("Processing function %s %d\n", STRGChunk_getString(&vm->wad->strg, function->name), j);
@@ -467,7 +467,7 @@ static void remapReferences(StarfaitVM* vm) {
             StarfaitByteBuffer_rewind(&buffer, 4);
 
             // Write the new function index!
-            StarfaitByteBuffer_writeUint32LE(&buffer, i); // For functions we don't need to "save" the nibble (w00t!)
+            StarfaitByteBuffer_writeInt32LE(&buffer, i); // For functions we don't need to "save" the nibble (w00t!)
 
             // We rewind again because if we don't do that the delta will not align
             StarfaitByteBuffer_rewind(&buffer, 4);
@@ -498,16 +498,16 @@ StarfaitVM* StarfaitVM_create(GameWAD* wad) {
 
 static void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buffer) {
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
-        size_t start = buffer->position;
+        int32_t start = buffer->position;
 
         OpWord word = {.value = StarfaitByteBuffer_readUint32LE(buffer)};
         Op opcode = OpWord_opcode(word);
-        uint16_t type1 = OpWord_type1(word);
-        uint16_t type2 = OpWord_type2(word);
-        int16_t extra = OpWord_extra(word);
+        int32_t type1 = OpWord_type1(word);
+        int32_t type2 = OpWord_type2(word);
+        int32_t extra = OpWord_extra(word);
 
         // VM: [gml_Object_obj_test_Step_0] (8) [0x4565fff9] POP (type1: 00000005, type2: 00000006, extra: fffffff9) [stack=1 ["Howdy! Loritta is so cute!"]]
-        printf("VM: (%lu) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [callFrameStack=%lu stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->callFrameStack->size, vm->stack.top);
+        printf("VM: (%d) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [callFrameStack=%d stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->callFrameStack->size, vm->stack.top);
         printf(" ");
         bool isFirst = true;
         printf("[");

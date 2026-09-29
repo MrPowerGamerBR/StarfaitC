@@ -15,73 +15,92 @@ arrayListVariants = [
         "file": "arraylist_uint32",
         "name": "Uint32ArrayList",
         "type": "uint32_t",
-        "includes": []
+        "includes": [],
+        "numeric": True
+    },
+    {
+        "file": "arraylist_int32",
+        "name": "Int32ArrayList",
+        "type": "int32_t",
+        "includes": [],
+        "numeric": True
     },
     {
         "file": "arraylist_builtinfunction",
         "name": "BuiltinFunctionArrayList",
         "type": "BuiltinFunction",
-        "includes": ["\"vm/builtinfunction.h\""]
+        "includes": ["\"vm/builtinfunction.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_builtinvariable",
         "name": "BuiltinVariableArrayList",
         "type": "BuiltinVariable",
-        "includes": ["\"vm/builtinvariable.h\""]
+        "includes": ["\"vm/builtinvariable.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_variable",
         "name": "VariableArrayList",
         "type": "Variable",
-        "includes": ["\"wad/variable.h\""]
+        "includes": ["\"wad/variable.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_script",
         "name": "ScriptArrayList",
         "type": "Script",
-        "includes": ["\"wad/script.h\""]
+        "includes": ["\"wad/script.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_function",
         "name": "FunctionArrayList",
         "type": "Function",
-        "includes": ["\"wad/function.h\""]
+        "includes": ["\"wad/function.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_codeentry",
         "name": "CodeEntryArrayList",
         "type": "CodeEntry",
-        "includes": ["\"wad/codeentry.h\""]
+        "includes": ["\"wad/codeentry.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_rvalue",
         "name": "RValueArrayList",
         "type": "RValue",
-        "includes": ["\"vm/rvalue.h\""]
+        "includes": ["\"vm/rvalue.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_callframe",
         "name": "CallFrameArrayList",
         "type": "CallFrame",
-        "includes": ["\"vm/callframe.h\""]
+        "includes": ["\"vm/callframe.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_string",
         "name": "StringArrayList",
         "type": "StarfaitString",
-        "includes": ["\"starfaitstring.h\""]
+        "includes": ["\"starfaitstring.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_pathpoint",
         "name": "PathPointArrayList",
         "type": "PathPoint",
-        "includes": ["\"wad/pathpoint.h\""]
+        "includes": ["\"wad/pathpoint.h\""],
+        "numeric": False
     },
     {
         "file": "arraylist_path",
         "name": "PathArrayList",
         "type": "Path",
-        "includes": ["\"wad/path.h\""]
+        "includes": ["\"wad/path.h\""],
+        "numeric": False
     }
 ]
 
@@ -94,6 +113,9 @@ hashMapVariants = [
     }
 ]
 
+with open(templatesFolder / "arraylist_numeric.h", "r", encoding="utf-8") as f:
+    numericArrayListFunctions = f.read()
+
 with open(templatesFolder / "arraylist.h", "r", encoding="utf-8") as f:
     contents = f.read()
 
@@ -101,10 +123,14 @@ with open(templatesFolder / "arraylist.h", "r", encoding="utf-8") as f:
         includes = ""
         for include in arrayListVariant["includes"]:
             includes = includes + "#include " + include + "\n"
+        additionalFunctions = ""
+        if arrayListVariant["numeric"] is True:
+            additionalFunctions = additionalFunctions + numericArrayListFunctions
 
         with open(generatedDirectory / (arrayListVariant["file"] + ".h"), "w") as f:
             f.write(
                 ("// BEEP BOOP THIS WAS AUTOMATICALLY GENERATED - DO NOT EDIT MANUALLY!!\n" + contents)
+                    .replace("__ADDITIONAL_FUNCTIONS__", additionalFunctions)
                     .replace("__ARRAY_LIST_NAME__", arrayListVariant["name"])
                     .replace("__ARRAY_LIST_TYPE__", arrayListVariant["type"])
                     .replace("__INCLUDES__", includes)

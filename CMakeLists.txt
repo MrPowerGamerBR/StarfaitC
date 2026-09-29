@@ -11,6 +11,7 @@ set(GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(
         GENERATED_OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_uint32.h
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_int32.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_builtinfunction.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_builtinvariable.h
         ${CMAKE_CURRENT_BINARY_DIR}/generated/arraylist_variable.h
@@ -41,13 +42,14 @@ target_compile_options(
         -Wwrite-strings
         -Wmissing-prototypes
         -Wimplicit-fallthrough
+        -Wconversion
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
         -Wno-error=unused-function
 )
 target_include_directories(Starfait PRIVATE ${CMAKE_SOURCE_DIR}/src ${GENERATED_DIR})
 
-add_custom_command(OUTPUT ${GENERATED_OUTPUT} COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates ${GENERATED_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates/arraylist.h ${CMAKE_SOURCE_DIR}/src/templates/hashmap.h)
+add_custom_command(OUTPUT ${GENERATED_OUTPUT} COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates ${GENERATED_DIR} DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen.py ${CMAKE_SOURCE_DIR}/src/templates/arraylist.h ${CMAKE_SOURCE_DIR}/src/templates/arraylist_numeric.h ${CMAKE_SOURCE_DIR}/src/templates/hashmap.h)
 
 if(ENABLE_ASAN)
     target_compile_options(Starfait PRIVATE -fsanitize=address -fno-omit-frame-pointer)

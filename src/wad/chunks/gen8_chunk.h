@@ -6,8 +6,8 @@ typedef struct {
     uint8_t wadVersion;
     StringPointer gameTitle;
     StringPointer yoyoConfig;
-    uint8_t maxObjectId;
-    uint8_t maxTileId;
+    uint32_t maxObjectId;
+    uint32_t maxTileId;
     uint32_t gameId;
     uint32_t roomOrderCount;
     uint32_t* roomOrder;

@@ -15,8 +15,8 @@ RValue VMStack_peek(VMStack* stack) {
     return stack->stack[stack->top - 1];
 }
 
-RValue VMStack_peekAt(VMStack* stack, uint32_t index) {
+RValue VMStack_peekAt(VMStack* stack, int32_t index) {
     require(stack->top != 0, "You can't peek an empty stack!");
-    require(stack->top > index, "Trying to peek out of bounds!");
+    require(stack->top > index && index >= 0, "Trying to peek out of bounds!");
     return stack->stack[index];
 }

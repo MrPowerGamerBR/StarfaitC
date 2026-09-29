@@ -54,7 +54,7 @@ static inline RValue RValue_createBoolean(bool value) {
     };
 }
 
-static inline RValue RValue_createReal(int32_t value) {
+static inline RValue RValue_createReal(double value) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_REAL,
         .value = { .real = value }

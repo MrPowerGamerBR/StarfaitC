@@ -4,8 +4,8 @@
 
 typedef struct {
     CodeEntryArrayList* codeEntries;
-    uint32_t postAddressPosition;
-    size_t bytecodeSize;
+    int32_t postAddressPosition;
+    int32_t bytecodeSize;
     uint8_t* bytecode;
 } CODEChunk;
 

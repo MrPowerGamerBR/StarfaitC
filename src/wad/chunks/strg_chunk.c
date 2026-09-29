@@ -7,19 +7,19 @@
 #include "../../utils.h"
 
 STRGChunk STRGChunk_parse(StarfaitByteBuffer* buffer) {
-    size_t addressCount;
-    uint32_t* addresses;
+    int32_t addressCount;
+    int32_t* addresses;
     StarfaitByteBuffer_readAddresses(buffer, &addressCount, &addresses);
 
-    StringWrapper** strings = malloc(addressCount * sizeof(StringWrapper*));
+    StringWrapper** strings = malloc((size_t) addressCount * sizeof(StringWrapper*));
 
     repeat(addressCount, x) {
-        uint32_t address = addresses[x];
-        uint32_t start = buffer->position;
+        int32_t address = addresses[x];
+        int32_t start = buffer->position;
 
         printf("address: %d\n", address);
         StarfaitByteBuffer_jumpTo(buffer, address);
-        uint32_t length = StarfaitByteBuffer_readUint32LE(buffer);
+        int32_t length = StarfaitByteBuffer_readInt32LE(buffer);
         char* string = StarfaitByteBuffer_readChars(buffer, length);
 
         printf("string: %s\n", string);

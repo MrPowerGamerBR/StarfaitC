@@ -2,12 +2,12 @@
 #include "../../starfaitbytebuffer.h"
 
 typedef struct {
-    size_t address;
+    int32_t address;
     char* string;
 } StringWrapper;
 
 typedef struct {
-    size_t stringCount;
+    int32_t stringCount;
     StringWrapper** strings;
 } STRGChunk;
 

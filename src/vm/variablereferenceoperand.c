@@ -1,15 +1,15 @@
 #include "variablereferenceoperand.h"
 
-uint32_t VariableReferenceOperand_delta(VariableReferenceOperand operand) {
-    return (operand.value << 4) >> 4; // low 28 bits
+int32_t VariableReferenceOperand_delta(VariableReferenceOperand operand) {
+    return (int32_t) ((operand.value << 4) >> 4); // low 28 bits
 }
 
 int32_t VariableReferenceOperand_variableIndex(VariableReferenceOperand operand) {
     return VariableReferenceOperand_delta(operand);
 }
 
-uint32_t VariableReferenceOperand_referenceFlags(VariableReferenceOperand operand) {
-    return operand.value >> 28;
+int32_t VariableReferenceOperand_referenceFlags(VariableReferenceOperand operand) {
+    return (int32_t) (operand.value >> 28);
 }
 
 bool VariableReferenceOperand_hasArrayIndex(VariableReferenceOperand operand) {

@@ -33,8 +33,8 @@ GameWAD GameWAD_parse(StarfaitByteBuffer* buffer) {
 
     while (StarfaitByteBuffer_hasRemaining(buffer)) {
         char* chunkName = StarfaitByteBuffer_readChars(buffer, 4);
-        uint32_t chunkSize = StarfaitByteBuffer_readUint32LE(buffer);
-        size_t currentPosition = buffer->position;
+        int32_t chunkSize = StarfaitByteBuffer_readInt32LE(buffer);
+        int32_t currentPosition = buffer->position;
 
         printf("Chunk is %s (size: %d)\n", chunkName, chunkSize);
 

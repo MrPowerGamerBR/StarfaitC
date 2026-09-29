@@ -45,6 +45,28 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     }
 }
 
+void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
+    // type1 is the source type, type2 is the destination type
+    InstructionDataType sourceType = InstructionDataType_byId(type1);
+    InstructionDataType destinationType = InstructionDataType_byId(type2);
+    RValue pop = VMStack_pop(&vm->stack);
+
+    switch (destinationType) {
+        // no-op, this is only useful if some day we decide to go with non-tagged RValues (that is, using two arrays, one for native values and another for RValues)
+        // Because in that case, we would need to convert the RValue to the native type
+        case DATA_TYPE_VARIABLE:
+            VMStack_push(&vm->stack, pop);
+            return;
+        case DATA_TYPE_DOUBLE: TODO();
+        case DATA_TYPE_FLOAT: TODO();
+        case DATA_TYPE_INT32: TODO();
+        case DATA_TYPE_INT64: TODO();
+        case DATA_TYPE_BOOLEAN: TODO();
+        case DATA_TYPE_STRING: TODO();
+        case DATA_TYPE_INT16: TODO();
+    }
+}
+
 void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t extra) {
     FunctionReferenceOperand operand = (FunctionReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
     uint32_t functionIndex = FunctionReferenceOperand_functionIndex(operand);
@@ -146,6 +168,10 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
             }
             case OP_POPZ: {
                 handlePopz(vm);
+                break;
+            }
+            case OP_CONV: {
+                handleConv(vm, type1, type2);
                 break;
             }
             default:

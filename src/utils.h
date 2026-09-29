@@ -20,9 +20,19 @@
         }                                                               \
     } while (0)
 
-#define bye( ...)                                                   \
+#define bye(...)                                                    \
     do {                                                            \
         fprintf(stderr, "%s:%d (%s) Aborted",                       \
+            __FILE__, __LINE__, __func__);                          \
+        __VA_OPT__(fprintf(stderr, ": ");                           \
+            fprintf(stderr, __VA_ARGS__);)                          \
+        fputc('\n', stderr);                                        \
+        abort();                                                    \
+    } while (0)
+
+#define TODO(...)                                                   \
+    do {                                                            \
+        fprintf(stderr, "%s:%d (%s) TODO",                          \
             __FILE__, __LINE__, __func__);                          \
         __VA_OPT__(fprintf(stderr, ": ");                           \
             fprintf(stderr, __VA_ARGS__);)                          \

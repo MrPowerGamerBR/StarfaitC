@@ -71,14 +71,15 @@ static inline void Int2RValueHashMap_put(HASH_MAP_NAME* map, int32_t key, RValue
     HASH_MAP_ENTRY_NAME* top = entry;
 
     // Do we already have an entry?
-    if (entry != nullptr) {
-        while (true) {
-            if (entry->key == key) {
-                entry->value = value;
-            }
+    while (true) {
+        if (entry == nullptr)
+            break;
 
-            entry = entry->next;
+        if (entry->key == key) {
+            entry->value = value;
         }
+
+        entry = entry->next;
     }
 
     // Create new entry

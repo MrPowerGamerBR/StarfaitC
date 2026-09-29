@@ -390,7 +390,7 @@ void handleDup(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16
     int32_t dupBottom = vm->stack.top - 1 - extra;
     repeat(total, i) {
         RValue target = VMStack_peekAt(&vm->stack, dupBottom + i);
-        VMStack_push(&vm->stack, target);
+        VMStack_push(&vm->stack, RValue_createCopy(target));
     }
 }
 

@@ -82,3 +82,8 @@ __ADDITIONAL_FUNCTIONS__
 #define __ARRAY_LIST_NAME___forEach(list, ptr, i) \
     for (int32_t i = 0; list->size > i; i++) \
         for (__ARRAY_LIST_TYPE__* ptr = &list->elements[i]; ptr != nullptr; ptr = nullptr)
+
+#define __ARRAY_LIST_NAME___forEachValue(list, value, i) \
+    for (int32_t i = 0; list->size > i; i++) \
+        for (__ARRAY_LIST_TYPE__* ptr = &list->elements[i]; ptr != nullptr; ptr = nullptr) \
+            for (__ARRAY_LIST_TYPE__ value = *ptr; ptr != nullptr; ptr = nullptr)

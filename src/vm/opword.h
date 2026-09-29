@@ -12,6 +12,6 @@ typedef struct {
 Opcode OpWord_opcode(OpWord opWord);
 uint32_t OpWord_type1(OpWord opWord);
 uint32_t OpWord_type2(OpWord opWord);
-uint16_t OpWord_extra(OpWord opWord);
+int16_t OpWord_extra(OpWord opWord);
 uint32_t OpWord_comparisonFunction(OpWord opWord);
 uint32_t OpWord_branchOffset(OpWord opWord);

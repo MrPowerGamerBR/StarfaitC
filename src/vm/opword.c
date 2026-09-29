@@ -12,8 +12,8 @@ uint32_t OpWord_type2(OpWord opWord) {
     return (opWord.value >> 20) & 0xF;
 }
 
-uint16_t OpWord_extra(OpWord opWord) {
-    return (uint16_t) opWord.value;
+int16_t OpWord_extra(OpWord opWord) {
+    return (int16_t) opWord.value;
 }
 
 uint32_t OpWord_comparisonFunction(OpWord opWord) {

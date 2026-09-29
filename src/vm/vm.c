@@ -10,6 +10,8 @@
 #include "instructiondatatype.h"
 #include "../utils.h"
 #include "rvalue.h"
+#include "variablereferenceoperand.h"
+#include "variablescope.h"
 #include "vm_builtins.h"
 #include "../charutils.h"
 
@@ -24,7 +26,6 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: TODO();
         case DATA_TYPE_STRING:
-            // TODO: Actually do the thing
             uint32_t stringIndex = StarfaitByteBuffer_readUint32LE(buffer);
             VMStack_push(&vm->stack, RValue_createReferencedString(vm->wad->strg.strings[stringIndex]->string));
             break;
@@ -32,7 +33,7 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
     }
 }
 
-void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
+void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1, int32_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
@@ -42,8 +43,13 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1)
         case DATA_TYPE_INT64: TODO();
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: {
-            StarfaitByteBuffer_readUint32LE(buffer);
-            // TODO: Actually do the thing
+            VariableReferenceOperand operand = (VariableReferenceOperand) {.value = StarfaitByteBuffer_readUint32LE(buffer)};
+
+            int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
+            int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
+
+            RValue localVariable = VariableContainer_getVariable(&vm->callFrame->container, VariableReferenceOperand_variableIndex(operand));
+            VMStack_push(&vm->stack, localVariable);
             break;
         };
         case DATA_TYPE_STRING: TODO();
@@ -52,7 +58,7 @@ void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1)
 }
 
 
-void handlePushImmediate(StarfaitVM* vm, uint16_t extra) {
+void handlePushImmediate(StarfaitVM* vm, int16_t extra) {
     VMStack_push(&vm->stack, RValue_createInt32(extra));
 }
 
@@ -78,7 +84,7 @@ void handleConv(StarfaitVM* vm, uint16_t type1, uint16_t type2) {
     }
 }
 
-void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t extra) {
+void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra) {
     FunctionReferenceOperand operand = (FunctionReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
     uint32_t functionIndex = FunctionReferenceOperand_functionIndex(operand);
 
@@ -106,7 +112,7 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t extra) {
     abort();
 }
 
-void handlePop([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] StarfaitByteBuffer* buffer, uint16_t type1, [[maybe_unused]] uint16_t extra) {
+void handlePop(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint16_t type1, int16_t extra) {
     InstructionDataType type1DataType = InstructionDataType_byId(type1);
 
     switch (type1DataType) {
@@ -116,8 +122,28 @@ void handlePop([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] StarfaitByteBuf
         case DATA_TYPE_INT64: TODO();
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: {
-            uint32_t operand = StarfaitByteBuffer_readUint32LE(buffer);
-            printf("operand??? %d\n", operand);
+            VariableReferenceOperand operand = (VariableReferenceOperand){.value = StarfaitByteBuffer_readUint32LE(buffer)};
+
+            uint32_t varId = VariableReferenceOperand_variableIndex(operand);
+            int32_t arrayIndex = VariableReferenceOperand_hasArrayIndex(operand) ? VMStack_pop(&vm->stack).value.int32 : -1;
+            int32_t instanceId = VariableReferenceOperand_hasInstanceIdOnStack(operand) ? VMStack_pop(&vm->stack).value.int32 : extra;
+
+            RValue poppedValue = VMStack_pop(&vm->stack);
+
+            if (0 > instanceId) {
+                VariableScope scope = VariableScope_byId(instanceId);
+
+                printf("Write variable %d\n", varId);
+
+                switch (scope) {
+                    case VARIABLE_SCOPE_SELF: TODO();
+                    case VARIABLE_SCOPE_OTHER: TODO();
+                    case VARIABLE_SCOPE_GLOBAL: TODO();
+                    case VARIABLE_SCOPE_LOCAL: {
+                        VariableContainer_setVariable(&vm->callFrame->container, varId, poppedValue);
+                    }
+                }
+            }
             break;
         }
         case DATA_TYPE_STRING: TODO();
@@ -168,6 +194,7 @@ StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
     BuiltinFunctionArrayList* builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
     vm->builtinFunctionsArrayList = builtinFunctionsArrayList;
+    vm->callFrame = calloc(1, sizeof(CallFrame));
 
     vm->wad = wad;
     VMBuiltins_registerBuiltins(vm);
@@ -184,9 +211,21 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
         Opcode opcode = OpWord_opcode(word);
         uint16_t type1 = OpWord_type1(word);
         uint16_t type2 = OpWord_type2(word);
-        uint16_t extra = OpWord_extra(word);
+        int16_t extra = OpWord_extra(word);
 
-        printf("%lu %s %x %x %x %x\n", start, Op_getOpcodeName(opcode), opcode, OpWord_type1(word), OpWord_type2(word), OpWord_extra(word));
+        // VM: [gml_Object_obj_test_Step_0] (8) [0x4565fff9] POP (type1: 00000005, type2: 00000006, extra: fffffff9) [stack=1 ["Howdy! Loritta is so cute!"]]
+        printf("VM: (%lu) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->stack.top);
+        printf(" ");
+        bool isFirst = true;
+        printf("[");
+        repeat(vm->stack.top, i) {
+            if (!isFirst)
+                printf(", ");
+            printf("%s", RValue_toString(vm->stack.stack[i]));
+            isFirst = false;
+        }
+        printf("]");
+        printf("]\n");
 
         switch (opcode) {
             case OP_PUSH: {
@@ -194,7 +233,7 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
                 break;
             }
             case OP_PUSH_LOCAL: {
-                handlePushLocal(vm, buffer, type1);
+                handlePushLocal(vm, buffer, type1, extra);
                 break;
             }
             case OP_PUSH_IMMEDIATE: {

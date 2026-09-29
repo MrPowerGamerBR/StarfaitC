@@ -2,6 +2,7 @@
 #include "../wad/code.h"
 #include "../wad/wad.h"
 #include "vm_stack.h"
+#include "callframe.h"
 
 // Forward Declerations
 typedef struct StarfaitVM StarfaitVM;
@@ -19,6 +20,7 @@ typedef struct {
 
 struct StarfaitVM {
     GameWAD* wad;
+    CallFrame* callFrame;
     VMStack stack;
     BuiltinFunctionArrayList* builtinFunctionsArrayList;
 };

@@ -1,0 +1,43 @@
+#pragma once
+#include <stdint.h>
+
+typedef struct {
+    uint32_t value;
+} OptnFlags;
+
+#define OPTN_FLAGS(X) \
+    X(OPTN_FLAGS_FULLSCREEN, 0) \
+    X(OPTN_FLAGS_INTERPOLATE, 1) \
+    X(OPTN_FLAGS_USE_NEW_AUDIO, 2) \
+    X(OPTN_FLAGS_NO_BORDER, 3) \
+    X(OPTN_FLAGS_SHOW_CURSOR, 4) \
+    X(OPTN_FLAGS_SIZEABLE, 5) \
+    X(OPTN_FLAGS_STAY_ON_TOP, 6) \
+    X(OPTN_FLAGS_CHANGE_RESOLUTION, 7) \
+    X(OPTN_FLAGS_NO_BUTTONS, 8) \
+    X(OPTN_FLAGS_SCREEN_KEY, 9) \
+    X(OPTN_FLAGS_HELP_KEY, 10) \
+    X(OPTN_FLAGS_QUIT_KEY, 11) \
+    X(OPTN_FLAGS_SAVE_KEY, 12) \
+    X(OPTN_FLAGS_SCREENSHOT_KEY, 13) \
+    X(OPTN_FLAGS_CLOSE_ESC, 14) \
+    X(OPTN_FLAGS_FREEZE, 15) \
+    X(OPTN_FLAGS_SHOW_PROGRESS, 16) \
+    X(OPTN_FLAGS_LOAD_TRANSPARENT, 17) \
+    X(OPTN_FLAGS_SCALE_PROGRESS, 18) \
+    /* Read by the runner but unused */ \
+    X(OPTN_FLAGS_WRITE_ERRORS, 20) \
+    X(OPTN_FLAGS_ABORT_ERRORS, 21) \
+    X(OPTN_FLAGS_VARIABLE_ERRORS, 22) \
+    X(OPTN_FLAGS_CREATION_EVENT_ORDER, 23) \
+    X(OPTN_FLAGS_USE_FRONT_TOUCH, 24) \
+    X(OPTN_FLAGS_USE_REAR_TOUCH, 25) \
+    X(OPTN_FLAGS_USE_FAST_COLLISION, 26) \
+    X(OPTN_FLAGS_FAST_COLLISION_COMPATIBILITY, 27)
+
+#define MAKE_ENUM(name, val) name = val,
+typedef enum : int8_t {
+    OPTN_FLAGS(MAKE_ENUM)
+} OptnFlag;
+
+bool OptnFlags_isFlagEnabled(OptnFlags flags, OptnFlag flag);

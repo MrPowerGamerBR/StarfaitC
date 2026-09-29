@@ -4,7 +4,6 @@
 
 #include "charutils.h"
 #include "starfaitbytebuffer.h"
-#include "starfaitstrings.h"
 #include "utils.h"
 #include "vm/vm.h"
 #include "wad/code.h"
@@ -15,12 +14,6 @@
 #include "wad/wad.h"
 
 int main() {
-    String string = {
-        .length = 0
-    };
-    String_append(&string, "ayaya", 5);
-    printf("Hello, World! How are you today? %s\n", string.data);
-
     // FILE* file = fopen("/home/mrpowergamerbr/Projects/ButterGMGames/Undertale_108/data.win", "rb");
     FILE* file = fopen("/home/mrpowergamerbr/Documentos/VMShare/ShowDebugMessage-Default-1.0.0.0/data.win", "rb");
 

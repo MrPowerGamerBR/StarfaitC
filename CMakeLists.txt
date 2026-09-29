@@ -9,7 +9,7 @@ set(ENABLE_ASAN ON)
 
 add_executable(Starfait ${SOURCES})
 
-target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror -Wno-error=unused-variable)
+target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable)
 
 if(ENABLE_ASAN)
     target_compile_options(Starfait PRIVATE -fsanitize=address -fno-omit-frame-pointer)

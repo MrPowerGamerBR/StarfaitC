@@ -24,12 +24,33 @@ void handlePush(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
         case DATA_TYPE_BOOLEAN: TODO();
         case DATA_TYPE_VARIABLE: TODO();
         case DATA_TYPE_STRING:
+            // TODO: Actually do the thing
             uint32_t stringIndex = StarfaitByteBuffer_readUint32LE(buffer);
             VMStack_push(&vm->stack, RValue_createReferencedString(vm->wad->strg.strings[stringIndex]->string));
             break;
         case DATA_TYPE_INT16: TODO();
     }
 }
+
+void handlePushLocal(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t type1) {
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+
+    switch (type1DataType) {
+        case DATA_TYPE_DOUBLE: TODO();
+        case DATA_TYPE_FLOAT: TODO();
+        case DATA_TYPE_INT32: TODO();
+        case DATA_TYPE_INT64: TODO();
+        case DATA_TYPE_BOOLEAN: TODO();
+        case DATA_TYPE_VARIABLE: {
+            StarfaitByteBuffer_readUint32LE(buffer);
+            // TODO: Actually do the thing
+            break;
+        };
+        case DATA_TYPE_STRING: TODO();
+        case DATA_TYPE_INT16: TODO();
+    }
+}
+
 
 void handlePushImmediate(StarfaitVM* vm, uint16_t extra) {
     VMStack_push(&vm->stack, RValue_createInt32(extra));
@@ -84,6 +105,26 @@ void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, uint32_t extra) {
 
     abort();
 }
+
+void handlePop([[maybe_unused]] StarfaitVM* vm, [[maybe_unused]] StarfaitByteBuffer* buffer, uint16_t type1, [[maybe_unused]] uint16_t extra) {
+    InstructionDataType type1DataType = InstructionDataType_byId(type1);
+
+    switch (type1DataType) {
+        case DATA_TYPE_DOUBLE: TODO();
+        case DATA_TYPE_FLOAT: TODO();
+        case DATA_TYPE_INT32: TODO();
+        case DATA_TYPE_INT64: TODO();
+        case DATA_TYPE_BOOLEAN: TODO();
+        case DATA_TYPE_VARIABLE: {
+            uint32_t operand = StarfaitByteBuffer_readUint32LE(buffer);
+            printf("operand??? %d\n", operand);
+            break;
+        }
+        case DATA_TYPE_STRING: TODO();
+        case DATA_TYPE_INT16: TODO();
+    }
+}
+
 
 void handlePopz(StarfaitVM* vm) {
     VMStack_pop(&vm->stack);
@@ -152,12 +193,20 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
                 handlePush(vm, buffer, type1);
                 break;
             }
+            case OP_PUSH_LOCAL: {
+                handlePushLocal(vm, buffer, type1);
+                break;
+            }
             case OP_PUSH_IMMEDIATE: {
                 handlePushImmediate(vm, extra);
                 break;
             }
             case OP_CALL: {
                 handleCall(vm, buffer, extra);
+                break;
+            }
+            case OP_POP: {
+                handlePop(vm, buffer, type1, extra);
                 break;
             }
             case OP_POPZ: {

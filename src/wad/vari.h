@@ -3,12 +3,12 @@
 #include "stringpointer.h"
 #include "../starfaitbytebuffer.h"
 
-struct {
+typedef struct {
     uint32_t globalVariables;
     uint32_t instanceVariables;
     uint32_t localVariables;
     size_t variableCount;
     Variable* variables;
-} typedef VARI;
+} VARI;
 
 VARI VARI_parse(StarfaitByteBuffer* buffer, size_t chunkSize);

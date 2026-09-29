@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../utils.h"
 #include "../arraylist.h"
 #include "../charutils.h"
 
@@ -36,7 +37,7 @@ GEN8 GEN8_parse(StarfaitByteBuffer* buffer) {
 
     uint32_t* roomOrder = malloc(sizeof(uint32_t) * roomOrderCount);
 
-    for (int32_t x = 0; roomOrderCount > x; x++) {
+    repeat(roomOrderCount, x) {
         uint32_t roomId = StarfaitByteBuffer_readUint32LE(buffer);
         roomOrder[x] = roomId;
     }

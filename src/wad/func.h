@@ -1,15 +1,15 @@
 #pragma once
 #include "../starfaitbytebuffer.h"
 
-struct {
+typedef struct {
     StringPointer name;
     uint32_t occurenceCount;
     uint32_t firstAddress;
-} typedef Function;
+} Function;
 
-struct {
+typedef struct {
     size_t functionCount;
     Function* functions;
-} typedef FUNC;
+} FUNC;
 
 FUNC FUNC_parse(StarfaitByteBuffer* buffer);

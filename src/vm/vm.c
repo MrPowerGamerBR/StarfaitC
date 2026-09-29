@@ -133,7 +133,7 @@ void StarfaitVM_executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* 
         uint16_t type2 = OpWord_type2(word);
         uint16_t extra = OpWord_extra(word);
 
-        printf("%d %s %x %x %x %x\n", start, Op_getOpcodeName(opcode), opcode, OpWord_type1(word), OpWord_type2(word), OpWord_extra(word));
+        printf("%lu %s %x %x %x %x\n", start, Op_getOpcodeName(opcode), opcode, OpWord_type1(word), OpWord_type2(word), OpWord_extra(word));
 
         switch (opcode) {
             case OP_PUSH: {

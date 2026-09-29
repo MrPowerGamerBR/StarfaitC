@@ -1,7 +1,7 @@
 #pragma once
 #include "../starfaitbytebuffer.h"
 
-struct {
+typedef struct {
     bool debugWad;
     uint8_t wadVersion;
     StringPointer gameTitle;
@@ -11,6 +11,6 @@ struct {
     uint32_t gameId;
     uint32_t roomOrderCount;
     uint32_t* roomOrder;
-} typedef GEN8;
+} GEN8;
 
 GEN8 GEN8_parse(StarfaitByteBuffer* buffer);

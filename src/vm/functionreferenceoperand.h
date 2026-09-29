@@ -1,9 +1,9 @@
 #pragma once
 #include <stdint.h>
 
-struct {
+typedef struct {
     uint32_t value;
-} typedef FunctionReferenceOperand;
+} FunctionReferenceOperand;
 
 // Where's type 4? /j https://en.wikipedia.org/wiki/R4:_Ridge_Racer_Type_4
 

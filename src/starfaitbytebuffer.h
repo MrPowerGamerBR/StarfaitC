@@ -4,11 +4,11 @@
 
 #include "wad/stringpointer.h"
 
-struct {
+typedef struct {
     uint8_t* data;
     size_t size;
     size_t position;
-} typedef StarfaitByteBuffer;
+} StarfaitByteBuffer;
 
 StarfaitByteBuffer StarfaitByteBuffer_create(uint8_t* data, size_t size);
 

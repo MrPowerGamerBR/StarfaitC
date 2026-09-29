@@ -22,7 +22,7 @@ static inline RValue RValue_createUndefined() {
 static inline RValue RValue_createReferencedString(char* string) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_STRING,
-        .value = string,
+        .value = { .string = string },
         .isOwned = false
     };
 }
@@ -30,7 +30,7 @@ static inline RValue RValue_createReferencedString(char* string) {
 static inline RValue RValue_createOwnedString(char* string) {
     return (RValue) {
         .type = RVALUE_DATA_TYPE_STRING,
-        .value = string,
+        .value = { .string = string },
         .isOwned = true
     };
 }
@@ -48,4 +48,5 @@ static inline char* RValue_toString(RValue rvalue) {
         case RVALUE_DATA_TYPE_UNDEFINED: return strdup("undefined");
         case RVALUE_DATA_TYPE_STRING: return strdup(rvalue.value.string);
     }
+    abort();
 }

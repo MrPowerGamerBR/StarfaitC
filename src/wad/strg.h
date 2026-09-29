@@ -1,15 +1,15 @@
 #pragma once
 #include "../starfaitbytebuffer.h"
 
-struct {
+typedef struct {
     size_t address;
     char* string;
-} typedef StringWrapper;
+} StringWrapper;
 
-struct {
+typedef struct {
     size_t stringCount;
     StringWrapper** strings;
-} typedef STRG;
+} STRG;
 
 STRG STRG_parse(StarfaitByteBuffer* buffer);
 char* STRG_getString(STRG* strg, StringPointer pointer);

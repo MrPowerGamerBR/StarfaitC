@@ -8,4 +8,4 @@ file(GLOB SOURCES "src/*.c" "src/*.h" "src/wad/*.c" "src/wad/*.h" "src/vm/*.c" "
 set(ENABLE_ASAN_DEFAULT ON)
 
 add_executable(Starfait ${SOURCES})
-target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror=switch -Werror=switch-enum)
+target_compile_options(Starfait PRIVATE -Wall -Wextra -Werror -Wno-error=unused-variable)

@@ -10,7 +10,7 @@
 
 #define require(cond, ...)                                              \
     do {                                                                \
-        if (!(cond)) [[unlikely]] {                                     \
+        if (!(cond)) {                                                  \
             fprintf(stderr, "%s:%d: %s: require failed: %s",            \
                     __FILE__, __LINE__, __func__, #cond);               \
             __VA_OPT__(fprintf(stderr, " - ");                          \

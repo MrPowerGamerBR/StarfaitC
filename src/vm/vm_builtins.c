@@ -48,8 +48,7 @@ static void registerBuiltinVariable(VMBuiltins* builtins, const char* name, RVal
     );
 }
 
-VMBuiltins* VMBuiltins_create(StarfaitVM* vm) {
-    VMBuiltins* builtins = calloc(1, sizeof(VMBuiltins));
+void VMBuiltins_init(VMBuiltins* builtins) {
     builtins->builtinFunctionsArrayList = BuiltinFunctionArrayList_create(8);
     builtins->builtinVariablesArrayList = BuiltinVariableArrayList_create(8);
 
@@ -64,6 +63,4 @@ VMBuiltins* VMBuiltins_create(StarfaitVM* vm) {
 
     registerBuiltinVariable(builtins, "argument", variable_reader_argumentN, 0);
     registerBuiltinVariable(builtins, "argument_count", variable_reader_argument_count, 0);
-
-    return builtins;
 }

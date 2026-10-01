@@ -16,7 +16,7 @@ struct StarfaitVM {
     GlobalObject* global;
     StringArrayList* regularVariableNames;
     VMStack stack;
-    VMBuiltins* builtins;
+    VMBuiltins builtins;
     BuiltinVariableArrayList* builtinVariableHandlers;
 };
 

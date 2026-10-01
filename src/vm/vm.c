@@ -212,7 +212,7 @@ static void handleCall(StarfaitVM* vm, StarfaitByteBuffer* buffer, int32_t extra
     char* functionName = STRGChunk_getString(&vm->wad->strg, function.name);
 
     // TODO: This is BAD, we NEED to use HashMaps for this later
-    BuiltinFunctionArrayList_forEach(vm->builtins->builtinFunctionsArrayList, builtinFunction, i) {
+    BuiltinFunctionArrayList_forEach(vm->builtins.builtinFunctionsArrayList, builtinFunction, i) {
         if (CharUtils_charEquals(builtinFunction->name, functionName)) {
             RValue result = builtinFunction->builtinFunction(vm, extra, arguments);
             VMStack_push(&vm->stack, result);
@@ -498,8 +498,8 @@ static void remapReferences(StarfaitVM* vm) {
         bool found = false;
 
         // Get registered variable handler
-        repeat(vm->builtins->builtinVariablesArrayList->size, j) {
-            BuiltinVariable* builtinVariable = &vm->builtins->builtinVariablesArrayList->elements[j];
+        repeat(vm->builtins.builtinVariablesArrayList->size, j) {
+            BuiltinVariable* builtinVariable = &vm->builtins.builtinVariablesArrayList->elements[j];
 
             if (CharUtils_charEquals(name, builtinVariable->name)) {
                 found = true;
@@ -535,7 +535,7 @@ StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
 
     vm->global = GlobalObject_create();
-    vm->builtins = VMBuiltins_create(vm);
+    VMBuiltins_init(&vm->builtins);
     vm->wad = wad;
 
     remapReferences(vm);

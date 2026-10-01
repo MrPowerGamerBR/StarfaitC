@@ -7,4 +7,4 @@ typedef struct {
     BuiltinVariableArrayList* builtinVariablesArrayList;
 } VMBuiltins;
 
-VMBuiltins* VMBuiltins_create(StarfaitVM* vm);
+void VMBuiltins_init(VMBuiltins* builtins);

@@ -554,7 +554,13 @@ static void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buff
         int32_t extra = OpWord_extra(word);
 
         // VM: [gml_Object_obj_test_Step_0] (8) [0x4565fff9] POP (type1: 00000005, type2: 00000006, extra: fffffff9) [stack=1 ["Howdy! Loritta is so cute!"]]
-        printf("VM: (%d) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->stack.top);
+        int32_t deepCallFrame = 0;
+        CallFrame* callFrame = vm->currentCallFrame;
+        while (callFrame != nullptr) {
+            deepCallFrame++;
+            callFrame = callFrame->previous;
+        }
+        printf("VM: (%d) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [callFrameStack=%d stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, deepCallFrame, vm->stack.top);
         printf(" ");
         bool isFirst = true;
         printf("[");

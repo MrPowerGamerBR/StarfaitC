@@ -20,7 +20,7 @@
 constexpr int32_t REGULAR_VARIABLES_BASE = 100'000;
 
 CallFrame* StarfaitVM_getCurrentCallFrame(StarfaitVM* vm) {
-    return CallFrameArrayList_last(vm->callFrameStack);
+    return vm->currentCallFrame;
 }
 
 /**
@@ -534,7 +534,6 @@ static void remapReferences(StarfaitVM* vm) {
 StarfaitVM* StarfaitVM_create(GameWAD* wad) {
     StarfaitVM* vm = calloc(1, sizeof(StarfaitVM));
 
-    vm->callFrameStack = CallFrameArrayList_create(1);
     vm->global = GlobalObject_create();
     vm->builtins = VMBuiltins_create(vm);
     vm->wad = wad;
@@ -555,7 +554,7 @@ static void executeBytecodeInstructions(StarfaitVM* vm, StarfaitByteBuffer* buff
         int32_t extra = OpWord_extra(word);
 
         // VM: [gml_Object_obj_test_Step_0] (8) [0x4565fff9] POP (type1: 00000005, type2: 00000006, extra: fffffff9) [stack=1 ["Howdy! Loritta is so cute!"]]
-        printf("VM: (%d) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [callFrameStack=%d stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->callFrameStack->size, vm->stack.top);
+        printf("VM: (%d) [%x] %s (type1: %08x, type2: %08x, extra: %08x) [stack=%d", start, word.value, Op_getOpcodeName(opcode), type1, type2, extra, vm->stack.top);
         printf(" ");
         bool isFirst = true;
         printf("[");
@@ -642,18 +641,19 @@ RValue StarfaitVM_executeCode(StarfaitVM* vm, CodeEntry* code, RValueArrayList* 
         code->length - code->offset
     );
 
-    CallFrame* callFrame = CallFrame_create();
+    CallFrame callFrame = CallFrame_create();
 
     RValueArrayList_forEach(arguments, argument, i) {
-        RValueArrayList_add(callFrame->arguments, RValue_createCopy(*argument));
+        RValueArrayList_add(callFrame.arguments, RValue_createCopy(*argument));
     }
 
-    CallFrameArrayList_add(vm->callFrameStack, *callFrame);
+    callFrame.previous = vm->currentCallFrame;
+    vm->currentCallFrame = &callFrame;
 
     executeBytecodeInstructions(vm, &codeBuffer);
 
     // Pop the current callFrame
-    CallFrameArrayList_removeLast(vm->callFrameStack);
+    vm->currentCallFrame = callFrame.previous;
 
     // TODO: Return result!
     return RValue_createUndefined();

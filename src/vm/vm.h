@@ -12,7 +12,7 @@
 
 struct StarfaitVM {
     GameWAD* wad;
-    CallFrameArrayList* callFrameStack;
+    CallFrame* currentCallFrame;
     GlobalObject* global;
     StringArrayList* regularVariableNames;
     VMStack stack;
